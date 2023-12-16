@@ -7,3 +7,4 @@ possible solutions -
 - resize the arena image so that event coordinates are consistent (tried, did not work well)
 
 
+blah blah blah
