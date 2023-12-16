@@ -4,10 +4,12 @@ import os
 import tensorflow as tf
 
 
-# Read the image
 image = cv2.imread('../experimetation/arena.png')
 
-# Convert the image to grayscale
+# Resize the image to 700x700
+# resized_image = cv2.resize(image, (800, 800))
+
+# Convert the resized image to grayscale
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # Apply thresholding to create a mask of the white area
@@ -25,6 +27,7 @@ min_contour_perimeter = 255  # Adjust this based on the border thickness
 max_contour_perimeter = 300  # Adjust this based on the size of the enclosed images
 
 images = []
+coordinates = []
 
 # Extract and save the enclosed images with thick white borders
 for i, contour in enumerate(contours):
@@ -45,6 +48,9 @@ for i, contour in enumerate(contours):
         # Resize the denoised extracted image to 224x224
         extracted_resized = cv2.resize(sharpened_extracted_image, (224, 224))
         images.append(extracted_resized)
+        coordinates.append([x,y,w,h])
+
+print(coordinates)
 
 for i in range(1, len(images)+1):
     cv2.imwrite(f'{output_dir}/extracted_image_{i}.png', images[i-1])
@@ -69,3 +75,19 @@ for img in images:
     predictions.append(pred)
 
 print(predictions)
+
+# adding the bounding box (green) with class description (green) to the image
+# coordinates are stored in the coordinates array (done earlier)
+
+for i,coordinate in enumerate(coordinates):
+    x = coordinate[0]
+    y = coordinate[1]
+    w = coordinate[2]
+    h = coordinate[3]
+    img_with_box = cv2.rectangle(image,(x,y),(x+w,y+h),(0,255,0), 3)
+    cv2.putText(image, predictions[i], (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 2)
+
+
+cv2.imshow("imagebox",img_with_box)
+cv2.waitKey(0)
+cv2.destroyAllWindows()

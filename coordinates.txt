@@ -1,0 +1,9 @@
+[[165, 661, 67, 68], [485, 524, 69, 68], [491, 385, 67, 68], [155, 384, 68, 68], [168, 158, 67, 68]] -- arena1
+[[150, 593, 65, 65], [455, 463, 65, 65], [460, 331, 65, 65], [141, 330, 65, 65], [153, 115, 65, 65]] -- arena2
+
+issue - output should be in accordance to the ordering (ABCDE) provided on the arena, but the coordinates aren't always consistent
+possible solutions -
+- make use of the nearest aruco marker to the event spot
+- resize the arena image so that event coordinates are consistent (tried, did not work well)
+
+
