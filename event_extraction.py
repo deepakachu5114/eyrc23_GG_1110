@@ -1,10 +1,12 @@
+import sys
+
 import cv2
 import numpy as np
 import os
 import tensorflow as tf
 
 
-image = cv2.imread('../experimetation/arena.png')
+image = cv2.imread('sample_arenas/arena.png')
 
 # Resize the image to 700x700
 # resized_image = cv2.resize(image, (800, 800))
@@ -78,7 +80,7 @@ print(predictions)
 
 # adding the bounding box (green) with class description (green) to the image
 # coordinates are stored in the coordinates array (done earlier)
-
+img_with_box = None
 for i,coordinate in enumerate(coordinates):
     x = coordinate[0]
     y = coordinate[1]
