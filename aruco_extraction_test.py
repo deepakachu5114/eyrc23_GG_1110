@@ -68,11 +68,28 @@ def perspective_transform(arena_coordinates, image):
     return transformed_image
 
 # Entry point of the script
+import cv2
+
+
 def main():
-    image_path = 'sample_arenas/arena.png'
+    image_path = 'sample_arenas/arena_4.png'
     original_image = cv2.imread(image_path)
-    # Resize the original image for easier processing
-    resized_ori = cv2.resize(original_image, (1000, 1000))
+
+    # Get the original dimensions of the image
+    height, width, _ = original_image.shape
+
+    # Check if the image dimensions exceed 1500x1500
+    if width > 1500 or height > 1500:
+        # Calculate the new dimensions to resize the image to 50% of its original size
+        new_width = int(width * 0.4)
+        new_height = int(height * 0.4)
+
+        # Resize the image
+        resized_ori = cv2.resize(original_image, (new_width, new_height))
+    else:
+        # If image is smaller than 1500x1500, keep the original size
+        resized_ori = original_image
+
     # Detect markers in the resized image and get marker corner coordinates
     markerCorners, markerIds = detect_markers(resized_ori)
     coordinates = get_corner_coordinates(markerCorners, markerIds)
