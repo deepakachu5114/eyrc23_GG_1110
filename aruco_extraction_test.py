@@ -53,6 +53,7 @@ def perspective_transform(arena_coordinates, image):
     aspect_ratio = 1  # Define aspect ratio for transformation
     # Extracting the coordinates of the arena corners
     tl_x, tl_y = arena_coordinates[0]
+    tr_x, tr_y = arena_coordinates[1]
     # Calculate width and height of the transformed arena
     transformed_w = sqrt((tl_x - tr_x) ** 2 + (tl_y - tr_y) ** 2)
     transformed_h = transformed_w * aspect_ratio
