@@ -67,12 +67,23 @@ def perspective_transform(arena_coordinates, image):
     transformed_image = cv2.warpPerspective(image, transform_matrix, (int(transformed_w), int(transformed_h)))
     return transformed_image
 
+
+def get_corner_coordinates(markerCorners, markerIds):
+    corner_list = [[], [], [], []]
+    for i in range(len(markerIds)):
+        corner_list[0].append(markerCorners[i][0][0])
+        corner_list[1].append(markerCorners[i][0][1])
+        corner_list[2].append(markerCorners[i][0][2])
+        corner_list[3].append(markerCorners[i][0][3])
+    coordinates = arena_coordinates(corner_list[0], corner_list[1], corner_list[2], corner_list[3])
+    return coordinates
+
 # Entry point of the script
 import cv2
 
 
 def main():
-    image_path = 'sample_arenas/arena_4.png'
+    image_path = '../sample_arenas/arena.png'
     original_image = cv2.imread(image_path)
 
     # Get the original dimensions of the image
@@ -110,15 +121,6 @@ def main():
     cv2.destroyAllWindows()
 
 # Function to get the corner coordinates from marker corners
-def get_corner_coordinates(markerCorners, markerIds):
-    corner_list = [[], [], [], []]
-    for i in range(len(markerIds)):
-        corner_list[0].append(markerCorners[i][0][0])
-        corner_list[1].append(markerCorners[i][0][1])
-        corner_list[2].append(markerCorners[i][0][2])
-        corner_list[3].append(markerCorners[i][0][3])
-    coordinates = arena_coordinates(corner_list[0], corner_list[1], corner_list[2], corner_list[3])
-    return coordinates
 
 # Call the main function when the script is executed
 main()

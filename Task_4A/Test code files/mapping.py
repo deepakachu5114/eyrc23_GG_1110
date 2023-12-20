@@ -29,7 +29,7 @@ def map_coordinates_to_labels(coordinates):
     mapping["B"] = sorted_coordinates[1]
     return mapping
     
-image = cv2.imread('sample_arenas/arena.png')
+image = cv2.imread('../sample_arenas/arena.png')
 
 # Resize the image to 700x700
 # resized_image = cv2.resize(image, (800, 800))
@@ -44,7 +44,7 @@ _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
 contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
 # Create a directory to save the extracted images
-output_dir = '../experimetation/extracted_images'
+output_dir = '../../../experimetation/extracted_images'
 os.makedirs(output_dir, exist_ok=True)
 
 # Define minimum and maximum contour perimeters to filter thick borders
