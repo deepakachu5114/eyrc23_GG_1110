@@ -27,8 +27,8 @@ while frame_count < 20:
 video_capture.release()
 
 # Create directories to save frames
-os.makedirs("frames_3_5_version2", exist_ok=True)
-os.makedirs("frames_10_20_version2", exist_ok=True)
+os.makedirs("frames_3_5_version3", exist_ok=True)
+os.makedirs("frames_10_20_version3", exist_ok=True)
 
 # Save frames 3-5
 for i, frame in enumerate(captured_frames_3_5):
