@@ -80,11 +80,11 @@ def arena_extraction(image):
     return arena
 
 def frame_capture():
-    # video_capture = cv2.VideoCapture(2)  # 0 for default webcam, change if needed
+    video_capture = cv2.VideoCapture(2)  # 0 for default webcam, change if needed
     frame = None
-    # # Set the resolution to the maximum supported by the webcam
-    # video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
-    # video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Height
+    # Set the resolution to the maximum supported by the webcam
+    video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
+    video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Height
     #
     # frame_count = 0
     # while frame_count != 20:
@@ -95,10 +95,10 @@ def frame_capture():
     # video_capture.release()
 
     # Path to your video file (or set as 0 for webcam)
-    video_path = '/eyrc23_GG_1110/sample_arenas/gg_test_vid.webm'  # Replace with your video file path, or use 0 for webcam
+    # video_path = '/eyrc23_GG_1110/sample_arenas/gg_test_vid.webm'  # Replace with your video file path, or use 0 for webcam
 
     # Initialize video capture from the video file or webcam
-    video_capture = cv2.VideoCapture(video_path)
+    # video_capture = cv2.VideoCapture(2)
 
 
     frame_count = 0
@@ -109,14 +109,20 @@ def frame_capture():
     # Release the video capture
     video_capture.release()
 
+    # frame = cv2.imread("/home/deepakachu/Pictures/Screenshots/Screenshot from 2023-12-21 15-23-35.png")
+
     return frame
 
 def event_extraction(arena):
     # Convert the resized image to grayscale
     gray = cv2.cvtColor(arena, cv2.COLOR_BGR2GRAY)
 
+    cv2.imshow("grey", gray)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
     # Apply thresholding to create a mask of the white area
-    _, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
+    _, thresh = cv2.threshold(gray, 220, 255, cv2.THRESH_BINARY)
 
     # Find contours
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -126,11 +132,13 @@ def event_extraction(arena):
     # os.makedirs(output_dir, exist_ok=True)
 
     # Define minimum and maximum contour perimeters to filter thick borders
-    min_contour_perimeter = 240  # Adjust this based on the border thickness
-    max_contour_perimeter = 1000  # Adjust this based on the size of the enclosed images
+    min_contour_perimeter = 200  # Adjust this based on the border thickness
+    max_contour_perimeter = 2000 # Adjust this based on the size of the enclosed images
 
     events = []
     event_coordinates = []
+
+    # print(contours)
 
     # Extract and save the enclosed images with thick white borders
     for i, contour in enumerate(contours):
@@ -142,16 +150,17 @@ def event_extraction(arena):
             # Crop the region of interest (excluding the border)
             extracted_event = arena[y + 5:y + h - 5, x + 5:x + w - 5]
 
-            sharpening_kernel = np.array([[-0.2, -0.2, -0.2],
-                                          [-0.2, 2.5, -0.2],
-                                          [-0.2, -0.2, -0.2]])
-
-            sharpened_extracted_image = cv2.filter2D(extracted_event, -1, sharpening_kernel)
+            # sharpening_kernel = np.array([[-0.2, -0.2, -0.2],
+            #                               [-0.2, 2.5, -0.2],
+            #                               [-0.2, -0.2, -0.2]])
+            #
+            # sharpened_extracted_image = cv2.filter2D(extracted_event, -1, sharpening_kernel)
 
             # Resize the denoised extracted image to 224x224
-            extracted_resized = cv2.resize(sharpened_extracted_image, (224, 224))
+            extracted_resized = cv2.resize(extracted_event, (224, 224))
             events.append(extracted_resized)
             event_coordinates.append([x, y, w, h])
+    print(events)
     return events, event_coordinates
 
 def event_label_prediction(model, events):
@@ -203,10 +212,14 @@ def event_mapping(event_coordinates, predicted_labels):
     return sorted_dict
 
 def return_4a_helper():
-    model = tf.keras.models.load_model('/task2b/saved_models/model_2b_revamped')
+    model = tf.keras.models.load_model('/home/deepakachu/Desktop/eyantra_stage_2/task2b/saved_models/model_2b_revamped')
     captured_frame = frame_capture()
     arena = arena_extraction(captured_frame)
-    events, event_coordinates = event_extraction(arena)
+    cv2.imshow("gg", cv2.resize(arena, (900,900)))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+    events, event_coordinates = event_extraction(cv2.resize(arena, (900,900)))
+    print(events)
     predicted_labels = event_label_prediction(model, events)
     identified_labels = event_mapping(event_coordinates, predicted_labels)
 
@@ -235,7 +248,7 @@ def task_4a_return():
 if __name__ == "__main__":
     _, arena, event_coordinates, predicted_labels = return_4a_helper()
     arena_labelled = bounding_box(arena, event_coordinates, predicted_labels)
-    arena_labelled = cv2.resize(arena_labelled, (900, 900                                              ))
+    arena_labelled = cv2.resize(arena_labelled, (900, 900))
     identified_labels = task_4a_return()
     print(identified_labels)
     cv2.imshow("Arena Feed", arena_labelled)

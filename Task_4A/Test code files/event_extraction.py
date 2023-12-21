@@ -60,9 +60,42 @@ def map_labels_to_events(coordinates, predictions):
 
 
 '''image = cv2.imread('sample_arenas/arena.png')'''
+video_capture = cv2.VideoCapture(2)  # 0 for default webcam, change if needed
+frame = None
+# Set the resolution to the maximum supported by the webcam
+video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
+video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Height
+#
+# frame_count = 0
+# while frame_count != 20:
+#     ret, frame = video_capture.read()  # Capture a single frame
+#     frame_count += 1
+#
+# # Release the video capture
+# video_capture.release()
 
-image = cv2.imread("/eyrc23_GG_1110/sample_arenas/arena_2.png",
-                   cv2.IMREAD_COLOR)
+# Path to your video file (or set as 0 for webcam)
+# video_path = '/eyrc23_GG_1110/sample_arenas/gg_test_vid.webm'  # Replace with your video file path, or use 0 for webcam
+
+# Initialize video capture from the video file or webcam
+# video_capture = cv2.VideoCapture(2)
+
+
+frame_count = 0
+while frame_count != 20:
+    ret, frame = video_capture.read()  # Capture a single frame
+    frame_count += 1
+
+# Release the video capture
+video_capture.release()
+
+image = frame
+
+
+# Read the image
+
+# Apply Bilateral filter
+# image = cv2.bilateralFilter(image, 9, 75, 75)  # Parameters can be adjusted
 
 # Resize the image to 700x700
 # resized_image = cv2.resize(image, (800, 800))
@@ -71,7 +104,7 @@ image = cv2.imread("/eyrc23_GG_1110/sample_arenas/arena_2.png",
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 # Apply thresholding to create a mask of the white area
-_, thresh = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY)
+_, thresh = cv2.threshold(gray, 20, 255, cv2.THRESH_BINARY)
 
 # Find contours
 contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -82,8 +115,8 @@ output_dir = '../../../experimetation/extracted_images'
 os.makedirs(output_dir, exist_ok=True)
 
 # Define minimum and maximum contour perimeters to filter thick borders
-min_contour_perimeter = 255  # Adjust this based on the border thickness
-max_contour_perimeter = 300  # Adjust this based on the size of the enclosed images
+min_contour_perimeter = 100  # Adjust this based on the border thickness
+max_contour_perimeter = 1000  # Adjust this based on the size of the enclosed images
 
 images = []
 coordinates = []
@@ -112,7 +145,7 @@ for i, contour in enumerate(contours):
 for i in range(1, len(images) + 1):
     cv2.imwrite(f'{output_dir}/extracted_image_{i}.png', images[i - 1])
 
-model = tf.keras.models.load_model("/task2b/saved_models/model_2b_revamped")
+model = tf.keras.models.load_model("/home/deepakachu/Desktop/eyantra_stage_2/task2b/saved_models/model_2b_revamped")
 
 predictions = []
 for img in images:
