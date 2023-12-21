@@ -83,7 +83,7 @@ import cv2
 
 
 def main():
-    image_path = '../sample_arenas/arena.png'
+    image_path = '/home/deepakachu/Desktop/eyantra_stage_2/eyrc23_GG_1110/Task_4A/Test code files/actual_arena_samples/frames_10_20/frame_17.jpg'
     original_image = cv2.imread(image_path)
 
     # Get the original dimensions of the image
@@ -119,6 +119,7 @@ def main():
     cv2.imshow("Cropped Region", cropped_region)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    return cropped_region
 
 # Function to get the corner coordinates from marker corners
 

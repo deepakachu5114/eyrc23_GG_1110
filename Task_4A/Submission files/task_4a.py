@@ -133,7 +133,7 @@ def event_extraction(arena):
 
     # Define minimum and maximum contour perimeters to filter thick borders
     min_contour_perimeter = 200  # Adjust this based on the border thickness
-    max_contour_perimeter = 2000 # Adjust this based on the size of the enclosed images
+    max_contour_perimeter = 2000  # Adjust this based on the size of the enclosed images
 
     events = []
     event_coordinates = []
@@ -169,7 +169,7 @@ def event_label_prediction(model, events):
         prediction_arr = model.predict(np.array([event]), verbose=0)
         predicted_index = np.where(prediction_arr[0] == max(prediction_arr[0]))[0][0]
         if predicted_index == 0:
-            predicted_label= "combat"
+            predicted_label = "combat"
         elif predicted_index == 1:
             predicted_label = 'human_aid_rehabilitation'
         elif predicted_index == 2:
