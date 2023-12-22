@@ -94,16 +94,17 @@ gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 # cv2.destroyAllWindows()
 # Convert the resized image to grayscale
 # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-normalized =cv2.normalize(gray, None, -50, 255, cv2.NORM_MINMAX)
-enhanced_image = cv2.convertScaleAbs(normalized, alpha=1.4, beta=-20)  # Adjust alpha and beta as needed
+normalized =cv2.normalize(gray, None, -500, 255, cv2.NORM_MINMAX)
+# enhanced_image = cv2.convertScaleAbs(normalized, alpha=1.4, beta=-20)  # Adjust alpha and beta as needed
 
-cv2.imshow("hmm", enhanced_image)
+# cv2.imshow("hmm", enhanced_image)
 cv2.imshow("norm", normalized)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
 
 # Apply thresholding to create a mask of the white area
-_, thresh = cv2.threshold(enhanced_image, 200, 255, cv2.THRESH_BINARY)
+_, thresh = cv2.threshold(normalized
+                          , 150, 255, cv2.THRESH_BINARY)
 
 # Find contours
 contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -117,12 +118,12 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 # Create a directory to save the extracted images
 
-output_dir = '../../../experimetation/extracted_images'
+output_dir = './home/deepakachu/Desktop/eyantra_stage_2/experimetation/extracted_images'
 os.makedirs(output_dir, exist_ok=True)
 
 # Define minimum and maximum contour perimeters to filter thick borders
-min_area = 1500  # Adjust this based on the border thickness
-max_area = 5000  # Adjust this based on the size of the enclosed images
+min_area = 3000  # Adjust this based on the border thickness
+max_area = 20000  # Adjust this based on the size of the enclosed images
 
 images = []
 coordinates = []

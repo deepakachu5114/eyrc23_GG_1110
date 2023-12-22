@@ -27,19 +27,19 @@ while frame_count < 20:
 video_capture.release()
 
 # Create directories to save frames
-os.makedirs("frames_3_5_version3", exist_ok=True)
-os.makedirs("frames_10_20_version3", exist_ok=True)
+os.makedirs("frames_3_5_new_L5", exist_ok=True)
+os.makedirs("frames_10_20_new_L5", exist_ok=True)
 
 # Save frames 3-5
 for i, frame in enumerate(captured_frames_3_5):
-    filename = f"frames_3_5/frame_{i+1}.jpg"  # Naming each frame
+    filename = f"frames_3_5_new_L5/frame_{i+1}.jpg"  # Naming each frame
     cv2.imwrite(filename, frame)
 
 print(f"{len(captured_frames_3_5)} frames (3-5) saved successfully.")
 
 # Save frames 10-20
 for i, frame in enumerate(captured_frames_10_20):
-    filename = f"frames_10_20/frame_{i+10}.jpg"  # Naming each frame starting from 10
+    filename = f"frames_10_20_new_L5/frame_{i+10}.jpg"  # Naming each frame starting from 10
     cv2.imwrite(filename, frame)
 
 print(f"{len(captured_frames_10_20)} frames (10-20) saved successfully.")
