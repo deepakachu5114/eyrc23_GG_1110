@@ -8,7 +8,7 @@ def detect_markers(image):
     # Convert the image to grayscale for marker detection
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Define the ArUco marker dictionary and parameters
-    dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_250)
+    dictionary = cv2.aruco.getPredefinedDictionary(cv2.aruco.DICT_4X4_100)
     parameters = cv2.aruco.DetectorParameters()
     # Create an ArUco detector object
     detector = cv2.aruco.ArucoDetector(dictionary, parameters)
@@ -83,23 +83,23 @@ import cv2
 
 
 def main():
-    image_path = '/home/deepakachu/Desktop/eyantra_stage_2/eyrc23_GG_1110/Task_4A/Test code files/actual_arena_samples/frames_10_20/frame_17.jpg'
+    image_path = '/eyrc23_GG_1110/Task_4A/sample_arenas/4b_layout.png'
     original_image = cv2.imread(image_path)
 
     # Get the original dimensions of the image
-    height, width, _ = original_image.shape
-
-    # Check if the image dimensions exceed 1500x1500
-    if width > 1500 or height > 1500:
-        # Calculate the new dimensions to resize the image to 50% of its original size
-        new_width = int(width * 0.4)
-        new_height = int(height * 0.4)
-
-        # Resize the image
-        resized_ori = cv2.resize(original_image, (new_width, new_height))
-    else:
-        # If image is smaller than 1500x1500, keep the original size
-        resized_ori = original_image
+    # height, width, _ = original_image.shape
+    #
+    # # Check if the image dimensions exceed 1500x1500
+    # if width > 1500 or height > 1500:
+    #     # Calculate the new dimensions to resize the image to 50% of its original size
+    #     new_width = int(width * 0.4)
+    #     new_height = int(height * 0.4)
+    #
+    #     # Resize the image
+    #     resized_ori = cv2.resize(original_image, (new_width, new_height))
+    # else:
+    #     # If image is smaller than 1500x1500, keep the original size
+    resized_ori = original_image
 
     # Detect markers in the resized image and get marker corner coordinates
     markerCorners, markerIds = detect_markers(resized_ori)
