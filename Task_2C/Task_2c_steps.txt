@@ -1,0 +1,65 @@
+Team ID = GG1110
+Trained weights drive link = "https://drive.google.com/drive/folders/1zTJ01luV5e8ePbmdfKkhA5ZMBeqsVMqG?usp=drive_link"
+NOTE - While loading the model, load it by using the below lines (path to the whole directory, not the .pb file):
+    model = tensorflow.keras.models.load_model('path/to/the/folder/model_pixelated_resized')
+
+
+###############################################################################
+'''
+Please write the complete steps taken by your team explaining how you completed Task 2B. It is adviced to be as elaborate as possible.
+
+1. We first created a directory called 'validation' in the specified path and set the variable parent_folder to the path pointing to the directory 'training'.
+
+2. We then iterated through each subfolder in the parent_folder and created a corresponding subfolder in the 'validation' directory. This was done to replicate the same folder structure in the validation dataset as in the training dataset.
+
+3. We then took a random sample of 16 files from the list of files present in the subfolders of 'training' and moved them to the corresponding subfolders in the 'validation' directory. This created a validation dataset from the training dataset.
+
+4. We then resized all the images to 50X50 so as to match the size of the images we extract from the arena. This also meant they got pixelated which should have helped since the extracted images from the arena were also pixelated.
+
+5. We then defined the class names - 'Combat', 'Humanitarian Aid and rehabilitation', 'Fire', 'Military vehicles and weapons', and 'DestroyedBuildings' for classifying our images.
+
+6. To train our model, we then preprocessed the images in the 'training', 'validation', and 'testing' folders to the target size of 50x50 and also took a batch size of 10. We used binary classification.
+
+7. We then created a ResNet-50 model with pre-trained weights from the ImageNet dataset. The include_top=False means that the fully connected layers(which are used for ImageNets's 1000 classes) are not included and we customized them to our specific classification task.
+
+8. We set the 'layers.trainable' to false because we do not want the weights of these layers to be updated during the training process.
+
+9. The variable 'x' is assigned the output tensor of the Resnet-50 model. Then a global average pooling layer is applied to reduce the spatial dimensions of the tensor. It computes the average of all values in the feature map, resulting in a fixed-size output regardless of the input size.
+
+10. In the subsequent lines, several dense layers with dropout regularization are added. Each dense layer has a specified number of units(512,256,128 and 64, respectively) and the ReLu activation function was used. The choice for ReLu function was because it captures minute details and is easier to calculate gradient descent.
+
+11. Dropout was applied after each dense layer to prevent overfitting during training. It sets a fraction of the input to 0 to prevent overfitting.
+
+12. The final dense layer with 5 units(because we have 5 classes) and the softmax activation function is then added. Softmax was used to convert raw model output into probabilities.
+
+13. The 'Model' class from Keras was used to create a new model. The inputs for this model are the same as the inputs of the pre-trained ResNet-50 model and the outputs are the predictions tensor.
+
+14. We basically created a new neural network model for our classification task by combining pre-trained ResNet-50 layers with custom dense layers. 
+
+15. The 'trainModel' method takes in three parameters:
+-'model': The neural network to be trained
+-'epochs': The number of times the training set will be passed forward and backward through the neural network
+-'optimizer': The optimization algorithm used to adjust the weights of the network during training.
+
+16. We set the batch size to 10. The batch size is the number of samples that will be propagated through the network at once during each training iteration.
+
+17. We then compiled the model by specifying the optimizer, loss function, and metrics to monitor.
+
+18. We then train the model using the 'fit' method for a fixed number of epochs using the training data provided by the 'train_generator', validation data provided by the 'valid_generator' is used to monitor the model's performance during training. 
+
+19. We then train the 'model' for 20 epochs using the 'Adam' optimizer. The training history is stored in the 'model_history' variable.
+
+20. The 'test_loss' and 'test_acc' are assigned the loss value and accuracy value of the model respectively.
+
+21. We then save the model in the specified path.
+
+22. We then define the classify method which takes the path as the parameter. This function classifies the image present in the given path.
+
+23. We then load the image from the specified path and resize it to the target size of 50x50. The 'load_img' is a function from the Keras preprocessing module that loads an image as a PIL(Python Imaging Library) object.
+
+24. We then convert the PIL image to a numpy array and wrap the image array in an additional array. We then predict make predictions using the predict() function.
+
+25. We then find the index of the class with the highest probability in the predictions array.
+
+26. We then return the corresponding class name to classify the image.
+
