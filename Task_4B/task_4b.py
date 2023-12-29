@@ -5,16 +5,17 @@ import csv
 import math
 
 # Load the video file
-video_path = '/home/deepakachu/Desktop/eyantra_stage_2/experimetation/fire_dataset/output.mp4'
+video_path = r"C:\Users\AISHINI\Downloads\output.mp4"
 cap = cv2.VideoCapture(video_path)
 
 # Define the ArUco dictionary and parameters
 aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
 parameters = aruco.DetectorParameters()
 
-all_corners = "/home/deepakachu/Desktop/eyantra_stage_2/experimetation/lat_long(2).csv"
-live_location = "/home/deepakachu/Desktop/eyantra_stage_2/experimetation/live_data.csv"
+all_corners = r"C:\Users\AISHINI\PycharmProjects\lat_long.csv"
+live_location = r"C:\Users\AISHINI\PycharmProjects\live_data.csv"
 lat_lon = {}
+last_20_detected_points = []
 
 def read_csv(csv_name):
 
@@ -40,7 +41,7 @@ def write_csv(loc, csv_name):
     # write column names "lat", "lon"
     # write loc ([lat, lon]) in respective columns
 
-    with open(csv_name, 'a', newline='') as csvfile:
+    with open(csv_name, 'w', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(["lat", "lon"])
         # Write the coordinates in the respective columns
@@ -95,6 +96,7 @@ while cap.isOpened():
         # print(corners)
         dist = 99999
         loc = 900
+        threshold = 74
 
         corners1 = corners[ids.index(1)]
         # print(corners1)
@@ -122,40 +124,22 @@ while cap.isOpened():
                     dist = distance
                     loc = id
         print(loc, dist)
-        tracker(loc, lat_lon)
+        if dist > threshold:
+            continue
+        if loc in set(last_20_detected_points):
+            # Add the detected point to the list of last 20 detected points
+            last_20_detected_points.append(loc)
 
-        # for id in lat_lon.keys():
-        #     #if id in ids:
-        #     if id != 1:
-        #         corners1 = []
-        #         corners2 = []
-        #         for (markerCorner, markerID) in zip(corners, ids):
-        #             # print(markerCorner, markerID)
-        #             if markerID == 1:
-        #                 corners1 = markerCorner[0]
-        #             if markerID == id:
-        #                 corners2 = markerCorner[0]
-        #             print(corners1)
-        #             print(corners2)
-        #             topLeft = [float(corners1[0][0]), float(corners1[0][1])]
-        #             topRight = [float(corners1[1][0]), float(corners1[1][1])]
-        #             bottomRight = [float(corners1[2][0]), float(corners1[2][1])]
-        #             bottomLeft = [float(corners1[3][0]), float(corners1[3][1])]
-        #             cX = int((topLeft[0] + bottomLeft[0] + topRight[0] + bottomRight[0]) / 4.0)
-        #             cY = int((topLeft[1] + bottomLeft[1] + topRight[1] + bottomRight[1]) / 4.0)
-        #             topLeft1 = [float(corners2[0][0]), float(corners2[0][1])]
-        #             topRight1 = [float(corners2[1][0]), float(corners2[1][1])]
-        #             bottomRight1 = [float(corners2[2][0]), float(corners2[2][1])]
-        #             bottomLeft1 = [float(corners2[3][0]), float(corners2[3][1])]
-        #             cX1 = int((topLeft1[0] + bottomLeft1[0] + topRight1[0] + bottomRight1[0]) / 4.0)
-        #             cY1 = int((topLeft1[1] + bottomLeft1[1] + topRight1[1] + bottomRight1[1]) / 4.0)
-        #             distance = math.sqrt((cX-cX1)**2+(cY-cY1)**2)
-        #             print(distance)
-        #             if distance < dist:
-        #                 dist = distance
-        #                 loc = id
-        #
-        # tracker(loc, lat_lon)
+            # Keep only the last 20 elements in the list
+            last_20_detected_points = last_20_detected_points[-20:]
+        else:
+            tracker(loc, lat_lon)
+            # Add the detected point to the list of last 20 detected points
+            last_20_detected_points.append(loc)
+
+            # Keep only the last 20 elements in the list
+            last_20_detected_points = last_20_detected_points[-20:]
+
 
 
     # Press 'q' to exit
