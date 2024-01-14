@@ -101,7 +101,11 @@ def event_extraction(arena):
     clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(2, 2))
     clahe_image = clahe.apply(gray)
     _, thresh = cv2.threshold(clahe_image
-                              , 210, 255, cv2.THRESH_BINARY)
+                              , 230, 255, cv2.THRESH_BINARY)
+
+    # cv2.imshow("clahe", cv2.resize(clahe_image, (800,800)))
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     # Find contours
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -111,8 +115,8 @@ def event_extraction(arena):
     output_dir = '/home/deepakachu/Desktop/eyantra_stage_2/eyrc23_GG_1110/Task_4A/Submission files/extracted_images'
     os.makedirs(output_dir, exist_ok=True)
 
-    # Define minimum and maximum contour perimeters to filter thick borders
-    min_area = 5500  # Adjust this based on the border thickness
+    # Define minimum and maximum contour perimeters to filter tuse a frame captured by the hick borders
+    min_area = 6000  # Adjust this based on the border thickness
     max_area = 10000  # Adjust this based on the size of the enclosed images
 
     images = []
@@ -129,13 +133,13 @@ def event_extraction(arena):
             extracted_image = arena[y + 15:y + h - 15, x + 15:x + w - 15]
 
             # Apply sharpening kernel
-            sharpening_kernel = np.array([[-0.2, -0.2, -0.2],
-                                          [-0.2, 2.5, -0.2],
-                                          [-0.2, -0.2, -0.2]])
+            sharpening_kernel = np.array([[-0.1, -0.1, -0.1],
+                                          [-0.1, 1.5, -0.1],
+                                          [-0.1, -0.1, -0.1]])
             sharpened_extracted_image = cv2.filter2D(extracted_image, -1, sharpening_kernel)
 
             # Resize the sharpened extracted image to 224x224
-            extracted_resized = cv2.resize(sharpened_extracted_image, (224, 224))
+            extracted_resized = cv2.resize(extracted_image, (224, 224))
             images.append(extracted_resized)
             coordinates.append([x, y, w, h])
 
@@ -223,16 +227,35 @@ def task_4a_return():
 ##################################################
     return identified_labels
 
-
 ###############	Main Function	#################
+# (Previous code...)
+
 if __name__ == "__main__":
     global arena
     global event_coordinates
     global predicted_labels
+
     identified_labels = task_4a_return()
-    arena_labelled = bounding_box(arena, event_coordinates, predicted_labels)
-    arena_labelled = cv2.resize(arena_labelled, (900, 900))
+    cap = cv2.VideoCapture(2)
     print(identified_labels)
-    cv2.imshow("Captured frame", arena_labelled)
-    cv2.waitKey(0)
+    while True:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+
+        # Process the frame to get the arena_labelled
+        arena_labelled = bounding_box(arena, event_coordinates, predicted_labels)
+        arena_labelled = cv2.resize(arena_labelled, (900, 900))
+
+        # Show the live video stream
+        cv2.imshow('Live Video Feed', frame)
+
+        # Show the processed frame (arena_labelled)
+        cv2.imshow("Processed Frame", arena_labelled)
+
+        # Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release the video capture object and close all OpenCV windows
+    cap.release()
     cv2.destroyAllWindows()

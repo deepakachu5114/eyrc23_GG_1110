@@ -4,18 +4,19 @@ import numpy as np
 import csv
 import math
 
-# Load the video file
-video_path = r"C:\Users\AISHINI\Downloads\output.mp4"
-cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(2)
+
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1980*0.6)  # Width
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080*0.6)  # Height
 
 # Define the ArUco dictionary and parameters
 aruco_dict = aruco.getPredefinedDictionary(aruco.DICT_4X4_250)
 parameters = aruco.DetectorParameters()
 
-all_corners = r"C:\Users\AISHINI\PycharmProjects\lat_long.csv"
-live_location = r"C:\Users\AISHINI\PycharmProjects\live_data.csv"
+all_corners = "/home/deepakachu/Desktop/eyantra_stage_2/experimetation/lat_long(2).csv"
+live_location = "/home/deepakachu/Desktop/eyantra_stage_2/experimetation/GG_1110_task_4b.csv"
 lat_lon = {}
-last_20_detected_points = []
+last_5_unique_points = []
 
 def read_csv(csv_name):
 
@@ -65,18 +66,25 @@ print(lat_lon)
 while cap.isOpened():
     ret, frame = cap.read()
 
+    # cv2.imshow("live feed", frame)
+
     if not ret:
         break
 
     # Detect markers
     corners, ids, _ = aruco.detectMarkers(frame, aruco_dict, parameters=parameters)
+
+    # aruco.drawDetectedMarkers(frame, corners, ids)
+
+    # resized_frame = cv2.resize(frame, None, fx=0.75, fy=0.75)
+    cv2.imshow("Live Feed", frame)
     # print(corners)
 
 
     # Check if ArUco marker with ID 1 is found
     if ids is not None and 1 in ids:
         # print(ids)
-        # print(corners)
+    # print(corners)
         ids = ids.flatten().tolist()
         corners = [arr[0].tolist() for arr in corners]
         # Create a list to store indices of elements to remove
@@ -96,7 +104,7 @@ while cap.isOpened():
         # print(corners)
         dist = 99999
         loc = 900
-        threshold = 74
+        threshold = 60
 
         corners1 = corners[ids.index(1)]
         # print(corners1)
@@ -124,21 +132,21 @@ while cap.isOpened():
                     dist = distance
                     loc = id
         print(loc, dist)
-        if dist > threshold:
-            continue
-        if loc in set(last_20_detected_points):
-            # Add the detected point to the list of last 20 detected points
-            last_20_detected_points.append(loc)
+        if dist <= threshold:
+            # continue
+            if loc not in (last_5_unique_points):
+                #continue since no unique marker is detected
+                # continue
+                # print(last_5_unique_points)
+            # else:
+                tracker(loc, lat_lon)
+                # Add the detected point to the list of last 20 detected points
+                last_5_unique_points.append(loc)
 
-            # Keep only the last 20 elements in the list
-            last_20_detected_points = last_20_detected_points[-20:]
-        else:
-            tracker(loc, lat_lon)
-            # Add the detected point to the list of last 20 detected points
-            last_20_detected_points.append(loc)
+                # Keep only the last 20 elements in the list
+                last_5_unique_points = last_5_unique_points[-5:]
+                # print(last_5_unique_points)
 
-            # Keep only the last 20 elements in the list
-            last_20_detected_points = last_20_detected_points[-20:]
 
 
 
