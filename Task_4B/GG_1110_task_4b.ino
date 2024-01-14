@@ -106,8 +106,6 @@ void buzzerlight(int duration) {
   
   delay(duration);
   digitalWrite(ledPin, LOW);
-  // digitalWrite(ledPin, LOW);
-    // analogWrite(buzzerPin, 0);
 
 }
 
@@ -131,9 +129,6 @@ const int TOTAL_INTERSECTIONS =  11; // Change this according to the number of i
 int intersectionActions[TOTAL_INTERSECTIONS] = {0,0,2,1,2,2,0,2,0,1,0}; // Example actions (0 = straight, 1 = left, 2 = right)
 
 void loop() {
-
-
-
   int sensorValue1 = digitalRead(irSensorPin1);
   int sensorValue2 = digitalRead(irSensorPin2);
   int sensorValue3 = digitalRead(irSensorPin3);
@@ -149,33 +144,18 @@ void loop() {
     int currentAction = intersectionActions[TOTAL_INTERSECTIONS - 1];
     Serial.println(currentAction);
 
-  // if (currentAction == 0) {
-  //   // If not in a straight configuration, move an additional 300 units
-  //   moveStraight();
-  //   delay(200); // Move straight for an additional 400 milliseconds (adjust as needed)
-  // }
-  // else {
-  //   moveStraight();
-  //   delay(450);
-  // }
-
-    // if (currentAction != 0) {
-    //   turnLeft();
-    //   delay(1000);
-
-    // }
     int bleh = 0;
     while(bleh<700){
       Serial.println(bleh);
     
       int sensorValue1 = digitalRead(irSensorPin1);
-  int sensorValue2 = digitalRead(irSensorPin2);
-  int sensorValue3 = digitalRead(irSensorPin3);
-  int sensorValue4 = digitalRead(irSensorPin4);
-  int sensorValue5 = digitalRead(irSensorPin5);
+      int sensorValue2 = digitalRead(irSensorPin2);
+      int sensorValue3 = digitalRead(irSensorPin3);
+      int sensorValue4 = digitalRead(irSensorPin4);
+      int sensorValue5 = digitalRead(irSensorPin5);
 
-  // Combine sensor values into an integer for comparison
-  int sensorPattern = (sensorValue1 << 4) | (sensorValue2 << 3) | (sensorValue3 << 2) | (sensorValue4 << 1) | sensorValue5;
+      // Combine sensor values into an integer for comparison
+      int sensorPattern = (sensorValue1 << 4) | (sensorValue2 << 3) | (sensorValue3 << 2) | (sensorValue4 << 1) | sensorValue5;
 
     switch (sensorPattern) {
     case B00000:
@@ -228,16 +208,13 @@ void loop() {
       break;
 
        }
-
       bleh++;
     }
     stopMotors();
     buzzerlight(5000);
 
-    // stopMotors();
-    // delay(100000);
     while(true){
-    //   // Serial.println("entering while loop");
+       // Serial.println("entering while loop");
         analogWrite(buzzerPin,0);
     }
 
@@ -313,15 +290,7 @@ void loop() {
       Serial.println("Stopping");
       stopMotors();
       buzzerWithoutLight(1000);
-      // if(intersectionCount == 0){
-      //   buzzerlight(1000);
-      // }
-      // else{
-      //   buzzerWithoutLight(1000);
-      // }
-
       currentAction = intersectionActions[intersectionCount];
-      // break;
 
 
 
