@@ -1,3 +1,28 @@
+/*
+
+*****************************************************************************************
+*
+*        		===============================================
+*           		Geo Guide (GG) Theme (eYRC 2023-24)
+*        		===============================================
+*
+*  This script is to implement Task 4B of Geo Guide (GG) Theme (eYRC 2023-24).
+*
+*  This software is made available on an "AS IS WHERE IS BASIS".
+*  Licensee/end user indemnifies and will keep e-Yantra indemnified from
+*  any and all claim(s) that emanate from the use of the Software or
+*  breach of the terms of this agreement.
+*
+*****************************************************************************************
+
+*/
+
+// Team ID:           GG_1110
+// Author List:       Aishini Bhattacharjee, Adithya Ubaradka, Deepak C Nayak, Upasana Nayak
+// Filename:          task_4b.ino
+
+
+
 // Motor A
 int motor1Pin2 = 15; // IN1
 int motor1Pin1 = 5;  // IN2

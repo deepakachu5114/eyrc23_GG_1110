@@ -99,7 +99,7 @@ def main():
 
             dist = 99999
             loc = 900
-            threshold = 60
+            threshold = 35
 
             corners1 = corners[ids.index(1)]
 

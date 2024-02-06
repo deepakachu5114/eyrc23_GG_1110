@@ -82,7 +82,7 @@ def arena_extraction(image):
 
 def frame_capture():
     video_capture = cv2.VideoCapture(2)  # 0 for default webcam, change if needed
-    frame = None
+    frame = cv2.imread("/experimentation/captured_images/frame_2.jpg")
     # Set the resolution to the maximum supported by the webcam
     video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
     video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Height
@@ -94,30 +94,28 @@ def frame_capture():
 
     # Release the video capture
     video_capture.release()
+
+    # return fra/home/deepakachu/Desktop/eyantra_stage_2/experimentation/captured_images/frame_6.jpgme
     return frame
+
 
 def event_extraction(arena):
     gray = cv2.cvtColor(arena, cv2.COLOR_BGR2GRAY)
     clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(2, 2))
     clahe_image = clahe.apply(gray)
-    _, thresh = cv2.threshold(clahe_image
-                              , 230, 255, cv2.THRESH_BINARY)
-
-    # cv2.imshow("clahe", cv2.resize(clahe_image, (800,800)))
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    _, thresh = cv2.threshold(clahe_image, 230, 255, cv2.THRESH_BINARY)
 
     # Find contours
     contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Create a directory to save the extracted images
-
-    output_dir = '/home/deepakachu/Desktop/eyantra_stage_2/eyrc23_GG_1110/Task_4A/Submission files/extracted_images'
+    output_dir = '/eyrc23_GG_1110/Task_4A/Submission files/extracted_images'
     os.makedirs(output_dir, exist_ok=True)
 
-    # Define minimum and maximum contour perimeters to filter tuse a frame captured by the hick borders
+    # Define minimum and maximum contour perimeters to filter
     min_area = 6000  # Adjust this based on the border thickness
     max_area = 10000  # Adjust this based on the size of the enclosed images
+    color_threshold = 45 # Threshold for rejecting images with the same color
 
     images = []
     coordinates = []
@@ -132,21 +130,27 @@ def event_extraction(arena):
             # Crop the region of interest (excluding the border)
             extracted_image = arena[y + 15:y + h - 15, x + 15:x + w - 15]
 
-            # Apply sharpening kernel
-            sharpening_kernel = np.array([[-0.1, -0.1, -0.1],
-                                          [-0.1, 1.5, -0.1],
-                                          [-0.1, -0.1, -0.1]])
-            sharpened_extracted_image = cv2.filter2D(extracted_image, -1, sharpening_kernel)
+            # Calculate the ratio of the dominant color in the image
+            _, max_val, _, _ = cv2.minMaxLoc(cv2.cvtColor(extracted_image, cv2.COLOR_BGR2HSV)[:,:,2])
+            color_ratio = max_val / 255.0
 
-            # Resize the sharpened extracted image to 224x224
-            extracted_resized = cv2.resize(extracted_image, (224, 224))
-            images.append(extracted_resized)
-            coordinates.append([x, y, w, h])
+            if color_ratio < color_threshold:
+                # Apply sharpening kernel
+                sharpening_kernel = np.array([[-0.1, -0.1, -0.1],
+                                              [-0.1, 1.5, -0.1],
+                                              [-0.1, -0.1, -0.1]])
+                sharpened_extracted_image = cv2.filter2D(extracted_image, -1, sharpening_kernel)
+
+                # Resize the sharpened extracted image to 224x224
+                extracted_resized = cv2.resize(extracted_image, (224, 224))
+                images.append(extracted_resized)
+                coordinates.append([x, y, w, h])
 
     for i in range(1, len(images) + 1):
         cv2.imwrite(f'{output_dir}/extracted_image_{i}.png', images[i - 1])
 
     return images, coordinates
+
 
 def event_label_prediction(model, events):
     predicted_labels = []
@@ -200,7 +204,7 @@ def return_4a_helper():
     global arena
     global event_coordinates
     global predicted_labels
-    model = tf.keras.models.load_model('/home/deepakachu/Desktop/eyantra_stage_2/task2b/saved_models/model_2b_revamped_test')
+    model = tf.keras.models.load_model('/task2b/saved_models/model_2b_revamped_test')
     captured_frame = frame_capture()
     arena = arena_extraction(captured_frame)
     events, event_coordinates = event_extraction(arena)
