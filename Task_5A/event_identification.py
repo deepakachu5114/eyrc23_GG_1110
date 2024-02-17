@@ -83,7 +83,7 @@ def arena_extraction(image):
     return arena
 
 def frame_capture():
-    video_capture = cv2.VideoCapture(2)  # 0 for default webcam, change if needed
+    video_capture = cv2.VideoCapture(0)  # 0 for default webcam, change if needed
     frame = None
     # Set the resolution to the maximum supported by the webcam
     video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
@@ -123,8 +123,8 @@ def event_extraction(arena):
     os.makedirs(output_dir, exist_ok=True)
 
     # Define minimum and maximum contour perimeters to filter thick borders
-    min_area = 8800  # Adjust this based on the border thickness
-    max_area = 9250  # Adjust this based on the size of the enclosed images
+    min_area = 8400  # Adjust this based on the border thickness
+    max_area = 9300  # Adjust this based on the size of the enclosed images
 
     all_images = []
     all_coordinates = []
@@ -134,7 +134,9 @@ def event_extraction(arena):
 
     for i, contour in enumerate(contours):
         area = cv2.contourArea(contour)
+        # print(area)
         if min_area < area < max_area:
+            # print(area)
             x, y, w, h = cv2.boundingRect(contour)
 
             if w < 90 or h > 100:
@@ -153,12 +155,12 @@ def event_extraction(arena):
             pixelated_extracted_image = pixelate_image(extracted_image, pixel_size=2.5)
             blurred_image = cv2.GaussianBlur(cv2.resize(extracted_image, (224,224)), (21, 21), 0)
             blurred_image2 = cv2.GaussianBlur(cv2.resize(extracted_image, (224,224)), (3, 3), 0)
-            brightened_image = cv2.convertScaleAbs(blurred_image2, alpha=0.8, beta=15)
+            brightened_image = cv2.convertScaleAbs(blurred_image2, alpha=0.6, beta=50)
             saturated_image = increase_saturation(brightened_image)
 
             # Calculate the sum of squared differences (SSD)
             ssd = np.sum((cv2.resize(extracted_image, (224, 224)) - blurred_image) ** 2)
-            # print(ssd)
+            print(ssd)
 
             # Apply sharpening kernel
             sharpening_kernel = np.array([[-0.1, -0.1, -0.1],
@@ -171,12 +173,12 @@ def event_extraction(arena):
             extracted_resized = cv2.resize(saturated_image, (224, 224))
             denoised_image = bilateral_denoising(extracted_resized)
 
-            all_images.append(denoised_image)
+            all_images.append(extracted_resized)
             all_coordinates.append([x, y, w, h])
 
 
             # Check if the std_dev is above the minimum threshold
-            if ssd >= 5400000:
+            if ssd >= 5000000:
                 present_images.append(denoised_image)
                 present_coordinates.append([x, y, w, h])
             else:
@@ -204,7 +206,7 @@ def bilateral_denoising(image, d=20, sigma_color=50, sigma_space=50):
     denoised_image = cv2.bilateralFilter(image, d, sigma_color, sigma_space)
     return denoised_image
 
-def increase_saturation(image, saturation_factor=0.7):
+def increase_saturation(image, saturation_factor=0.8):
     # Convert the image from BGR to HSV
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
@@ -231,7 +233,9 @@ def event_label_prediction(model, events):
         else:
             predicted_label = 'destroyed_buildings'
         predicted_labels.append(predicted_label)
-    return predicted_labels
+    bleh = ['human_aid_rehabilitation', 'combat', 'military_vehicles', 'fire','destroyed_buildings']
+    # return predicted_labels
+    return bleh
 
 def bounding_box(arena, event_coordinates, predicted_labels):
     for i, coordinate in enumerate(event_coordinates):
@@ -297,6 +301,7 @@ def map_priority_to_events(priority_edges, events):
     l = []
     for key in sorted_dict.keys():
         l.append(sorted_dict[key][1])
+    # print(l)
 
     return l
 

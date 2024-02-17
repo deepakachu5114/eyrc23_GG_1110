@@ -64,7 +64,7 @@ def tracker(ar_id, lat_lon):
 def tracking(frame, ret):
     last_5_unique_points = []
     read_csv(all_corners)
-    print(lat_lon)
+    # print(lat_lon)
 
     # cap = cv2.VideoCapture(2)
     # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1980 * 0.6)  # Width
@@ -96,7 +96,7 @@ def tracking(frame, ret):
 
         dist = 99999
         loc = 900
-        threshold = 35
+        threshold = 31.5
 
         corners1 = corners[ids.index(100)]
 

@@ -29,18 +29,18 @@ import cv2.aruco as aruco
 import time
 import threading
 import sample_track
-ESP_IP = '192.168.125.173'
+ESP_IP = '192.168.125.165'
 ESP_PORT = 8266
 
 #
 # TOP_LEFT = [[52, 54], 100]
 # TOP_RIGHT = [[10, 43], 100]
 # BOTTOM_RIGHT = [[14,16], 100]
-EVENT_E = [[48, 47], 45, 65] # one away one close scheme
-EVENT_D = [[34, 33], 50, 70] # one away one close scheme
-EVENT_C = [[30,31], 55]
-EVENT_B = [[28, 29], 60]
-EVENT_A = [[21, 20], 45, 65] # one away one close scheme
+EVENT_E = [[48, 47], 57, 65] # one away one close scheme
+EVENT_D = [[34, 33], 53, 70] # one away one close scheme
+EVENT_C = [[30,31], 50]
+EVENT_B = [[28, 29], 58]
+EVENT_A = [[21, 20],50, 65] # one away one close scheme
 BOT = 100
 
 def calculate_distance(corners, ids, marker_id1, marker_id2):
@@ -136,7 +136,7 @@ def bot_status(corners, ids):
 
 
 
-with open('encoded_path.json', 'r') as json_file:
+with open('/home/deepakachu/Desktop/eyantra_stage_2/experimetation/scam_config.json', 'r') as json_file:
     bot_path = list(json.load(json_file))
 
 with open('bot_stop_numbers.json', 'r') as json_file:
@@ -160,14 +160,14 @@ s.connect((ESP_IP, ESP_PORT))
 s.sendall(json_str.encode('utf-8'))
 
 # Receive acknowledgment from the ESP32
-acknowledgment = s.recv(1024).decode('utf-8')
-print(acknowledgment)
+# acknowledgment = s.recv(1024).decode('utf-8')
+# print(acknowledgment)
 
 
 #
 # Load the video file
 video_path = '/home/deepakachu/Desktop/eyantra_stage_2/experimetation/fire_dataset/output_2.mp4'
-cap = cv2.VideoCapture(2)
+cap = cv2.VideoCapture(0)
 
 # cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)  # Width
 # cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)  # Height
@@ -221,7 +221,9 @@ while cap.isOpened():
     # print(message)
 
     # Check if it's time to send the data
+    # print(message)
     if message is not None and message != 4 and sendMessage == True:
+        print(message)
 
         if message == bot_stop_nos[bot_event_index]:
 
@@ -230,6 +232,7 @@ while cap.isOpened():
             if previous_ack_received:
                 s.sendall(f"{message}\n".encode('utf-8'))
                 previous_ack_received = False
+                print(message)
 
                 # Receive acknowledgment from the ESP32
 
