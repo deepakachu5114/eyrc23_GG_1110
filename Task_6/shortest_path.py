@@ -12,8 +12,10 @@
 * Global Variables: cost_90, cost_180, se_90, reversed, set_90_right, set_90_left
 '''
 ####################### IMPORT MODULES #######################
-import heapq
+from itertools import permutations
 import json
+import heapq
+
 cost_90 = 10 #cost for a 90 degree turn
 cost_180 = 10 #cost for a 180 degree u turn
 
@@ -210,12 +212,12 @@ graph.add_edge(node4, node11, 5)
 graph.add_edge(node6, node10, 5, True)
 graph.add_edge(node5, node11, 5)
 
-from itertools import permutations
 '''
  Function Name: find_3_node_lists
  Input: graph (Graph) - The graph for which 3-node lists need to be found.
  Output: List - A list of tuples containing unique 3-node lists.
- Logic: Finds all unique 3-node lists in the graph, considering nodes with at least 2 neighbors.
+ Logic: Finds all unique 3-node lists in the graph, considering nodes with at least 2 neighbors. Each such element in the list
+        junction in the graph.
  Example call: result = find_3_node_lists(graph)'''
 def find_3_node_lists(graph):
     three_node_lists = set()
@@ -231,16 +233,16 @@ def find_3_node_lists(graph):
 
     return list(three_node_lists)
 
-import heapq
 '''
  Function Name: dijkstra
  Input:
    - graph (Graph): The graph on which Dijkstra's algorithm will be applied.
    - start (str): The starting node for the algorithm.
    - end (str): The target node to find the shortest path to.
-   - set_90 (set, optional): A set of three-node paths for additional conditions (default is set_90).
- Output: List - The shortest path from start to end considering additional conditions.
- Logic: Implements Dijkstra's algorithm to find the shortest path in a graph, with optional additional conditions.
+   - set_90 (set): The set of three-node junctions for identifying 90 degree turns.
+ Output: List - The path taking up the least amount of time, from start to end.
+ Logic: Implements Dijkstra's algorithm to find the shortest path in a graph, in a way that 90 degree turns have
+        an extra cost added to them, because it takes more time to make a turn than to go straight..
  Example call: path = dijkstra(graph, start, end, set_90)'''
 def dijkstra(graph, start, end, set_90=set_90):
     # Initialize distances and predecessor
@@ -287,18 +289,19 @@ def dijkstra(graph, start, end, set_90=set_90):
 ''' Function Name: find_shortest_path
  Input:
    - graph (Graph): The graph for which the shortest path needs to be found.
-   - priorities (list): A list of tuples representing node priorities.
- Output: List - The shortest path considering priorities and additional conditions.
- Logic: Finds the shortest path in the graph considering priorities and additional conditions.
+   - priorities (list): A list of tuples representing edge priorities.
+ Output: List - The shortest path considering priorities as well as turning costs.
+ Logic: Finds the least time-consuming path in the graph.
  Example call: path = find_shortest_path(graph, priorities)'''
 
 '''Algorithm:
     1. Initialize the starting and ending points for the path.
     2. Create an initial path starting from the start point.
-    3. Iterate through the list of node pairs (priorities):
+    3. Iterate through the list of node pairs depicting edges (priorities):
         a. Find the shortest paths from the starting point to each node in the current pair.
         b. Choose the shorter path between the forward and backward paths.
-        c. Optimize the path by potentially deleting edges or nodes if necessary.
+        c. Optimize the path by potentially deleting edges in case a 180 degree turn is encountered, because that would place
+            a really high cost on the travel time.
     4. If it's the last priority, find the shortest path back to the ending point.
     5. Return the total optimized path through the graph.'''
 def find_shortest_path(graph, priorities):
