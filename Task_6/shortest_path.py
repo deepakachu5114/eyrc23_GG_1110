@@ -315,22 +315,14 @@ def find_shortest_path(graph, priorities):
 
         shortest_path_backward = dijkstra(graph, start, node2) + [node1]
 
-        print("for",shortest_path_forward)
-        print("back",shortest_path_backward)
-        print("total", total_path_forward)
-
         # Choose the shorter path between forward and backward
         if len(shortest_path_backward) < len(shortest_path_forward):
             if len(total_path_forward) >= 2 and total_path_forward[-2] == shortest_path_backward[1]:
-                print("back not optimal")
                 #If there is a 180 degree turn, that particular edge is getting deleted to reduce costs
                 if total_path_forward[-2] == shortest_path_forward[1]:
-                    print("front also not optimal, edge deletion taking place")
                     graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
-                    print(f"del {total_path_forward[-2], total_path_forward[-1]}")
                     shortest_path_forward = dijkstra(graph_temp, start, node1) + [node2]
                     shortest_path_backward = dijkstra(graph_temp, start, node2) + [node1]
-                    print(f"new paths {shortest_path_forward}\n{shortest_path_backward}")
                     #The node which is nearer to the current location of the bot is considered.
                     if len(shortest_path_backward) < len(shortest_path_forward):
                         total_path_forward += shortest_path_backward[1:]
@@ -347,15 +339,11 @@ def find_shortest_path(graph, priorities):
         else:
             # Similar checks and handling for forward path not being optimal
             if len(total_path_forward) >= 2 and total_path_forward[-2] == shortest_path_forward[1]:
-                print("front not optimal")
                 if total_path_forward[-2] == shortest_path_backward[1]:
-                    print("back also not optimal, deleting edge")
                     #edge delete
                     graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
-                    print(f"del {total_path_forward[-2], total_path_forward[-1]}")
                     shortest_path_forward = dijkstra(graph_temp, start, node1) + [node2]
                     shortest_path_backward = dijkstra(graph_temp, start, node2) + [node1]
-                    print(f"new paths {shortest_path_forward}\n{shortest_path_backward}")
                     if len(shortest_path_backward) < len(shortest_path_forward):
                         total_path_forward += shortest_path_backward[1:]  # Exclude start node of the path
                         start = total_path_forward[-1]
@@ -375,11 +363,8 @@ def find_shortest_path(graph, priorities):
             print(last_node)
             shortest_path_backward = dijkstra(graph, last_node, end)
             if total_path_forward[-2] == shortest_path_backward[1]:
-                print("optimising edge, deleting node")
                 graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
-                print(f"del {total_path_forward[-2], total_path_forward[-1]}")
                 shortest_path_backward = dijkstra(graph_temp, last_node, end)
-                print(f"new path {shortest_path_backward}")
             total_path_forward += shortest_path_backward[1:]
     return total_path_forward
 
