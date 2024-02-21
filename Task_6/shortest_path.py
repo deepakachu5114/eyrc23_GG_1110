@@ -17,7 +17,6 @@ import json
 import heapq
 
 cost_90 = 10 #cost for a 90 degree turn
-cost_180 = 10 #cost for a 180 degree u turn
 
 #set_90 contains all 90 degree junctions
 set_90 = [('Start_End', 'A', 'H'), ('A', 'B', "I"), ('C', 'B', 'I'), ('B', 'C', 'J'), ('D', 'C', 'J'), ('C', 'D', 'K'), ('K', 'E', 'F'), ('D', 'E', 'K'),
@@ -34,8 +33,8 @@ set_90_right = [('Start_End', 'A', 'H'), ('A', 'B', 'I'), ('I', 'B', 'C'), ('B',
 set_90_left = [(tup[2], tup[1], tup[0]) for tup in set_90_right]
 ##############################################################
 
-# Class Name: Node
-# Description: Represents a node in a graph with a name and a list of neighbors.
+'''Class Name: Node
+Description: Represents a node in a graph with a name and a list of neighbors.'''
 class Node:
     def __init__(self, name):
         self.name = name
@@ -66,8 +65,8 @@ class Edge:
         self.weight = weight
         self.has_event = has_event  # Attribute for event presence
 
-# Class Name: Graph
-# Description: Represents a graph with nodes and edges.
+'''Class Name: Graph
+Description: Represents a graph with nodes and edges.'''
 class Graph:
     def __init__(self):
         self.nodes = {}
@@ -217,7 +216,7 @@ graph.add_edge(node5, node11, 5)
  Input: graph (Graph) - The graph for which 3-node lists need to be found.
  Output: List - A list of tuples containing unique 3-node lists.
  Logic: Finds all unique 3-node lists in the graph, considering nodes with at least 2 neighbors. Each such element in the list
-        junction in the graph.
+        is a junction in the graph.
  Example call: result = find_3_node_lists(graph)'''
 def find_3_node_lists(graph):
     three_node_lists = set()
@@ -324,6 +323,7 @@ def find_shortest_path(graph, priorities):
         if len(shortest_path_backward) < len(shortest_path_forward):
             if len(total_path_forward) >= 2 and total_path_forward[-2] == shortest_path_backward[1]:
                 print("back not optimal")
+                #If there is a 180 degree turn, that particular edge is getting deleted to reduce costs
                 if total_path_forward[-2] == shortest_path_forward[1]:
                     print("front also not optimal, edge deletion taking place")
                     graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
@@ -331,19 +331,21 @@ def find_shortest_path(graph, priorities):
                     shortest_path_forward = dijkstra(graph_temp, start, node1) + [node2]
                     shortest_path_backward = dijkstra(graph_temp, start, node2) + [node1]
                     print(f"new paths {shortest_path_forward}\n{shortest_path_backward}")
+                    #The node which is nearer to the current location of the bot is considered.
                     if len(shortest_path_backward) < len(shortest_path_forward):
-                        total_path_forward += shortest_path_backward[1:]  # Exclude start node of the path
+                        total_path_forward += shortest_path_backward[1:]
                         start = total_path_forward[-1]
                     else:
-                        total_path_forward += shortest_path_forward[1:]  # Exclude start node of the path
+                        total_path_forward += shortest_path_forward[1:]
                         start = total_path_forward[-1]
                 else:
-                    total_path_forward += shortest_path_forward[1:]  # Exclude start node of the path
+                    total_path_forward += shortest_path_forward[1:]
                     start = total_path_forward[-1]
             else:
-                total_path_forward += shortest_path_backward[1:]  # Exclude start node of the path
+                total_path_forward += shortest_path_backward[1:]
                 start = total_path_forward[-1]
         else:
+            # Similar checks and handling for forward path not being optimal
             if len(total_path_forward) >= 2 and total_path_forward[-2] == shortest_path_forward[1]:
                 print("front not optimal")
                 if total_path_forward[-2] == shortest_path_backward[1]:
@@ -358,13 +360,13 @@ def find_shortest_path(graph, priorities):
                         total_path_forward += shortest_path_backward[1:]  # Exclude start node of the path
                         start = total_path_forward[-1]
                     else:
-                        total_path_forward += shortest_path_forward[1:]  # Exclude start node of the path
+                        total_path_forward += shortest_path_forward[1:]
                         start = total_path_forward[-1]
                 else:
-                    total_path_forward += shortest_path_backward[1:]  # Exclude start node of the path
+                    total_path_forward += shortest_path_backward[1:]
                     start = total_path_forward[-1]
             else:
-                total_path_forward += shortest_path_forward[1:]  # Exclude start node of the path
+                total_path_forward += shortest_path_forward[1:]
                 start = total_path_forward[-1]
         # If it's the last priority, find the shortest path back to the ending point
         if i == len(priorities) - 1:
@@ -378,7 +380,7 @@ def find_shortest_path(graph, priorities):
                 print(f"del {total_path_forward[-2], total_path_forward[-1]}")
                 shortest_path_backward = dijkstra(graph_temp, last_node, end)
                 print(f"new path {shortest_path_backward}")
-            total_path_forward += shortest_path_backward[1:]  # Exclude start node of the path
+            total_path_forward += shortest_path_backward[1:]
     return total_path_forward
 
 with open('priority_edge_order.json', 'r') as json_file:
