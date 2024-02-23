@@ -60,9 +60,11 @@ def tracker(ar_id, lat_lon):
         coordinate = lat_lon[ar_id]
         write_csv(coordinate, live_location)
 
+last_5_unique_points = []
+
 
 def tracking(frame, ret):
-    last_5_unique_points = []
+    global last_5_unique_points
     read_csv(all_corners)
     # print(lat_lon)
 

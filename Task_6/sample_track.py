@@ -3,8 +3,8 @@
 * Author List : Aishini Bhattacharjee, Adithya S Ubaradka, Deepak C Nayak, Upasana Nayak
 * Filename: sample_track.py
 * Theme: GeoGuide
-* Functions: read_Csv,write_csv,track,tracking
-* Global Variables: all_corners, live_location, lat_lon
+* Functions: read_csv, write_csv,track,tracking
+* Global Variables: all_corners, live_location, lat_lon, last_5_unique_points
 '''
 
 
@@ -22,6 +22,9 @@ all_corners = "/home/deepakachu/Desktop/eyantra_stage_2/experimetation/lat_long(
 live_location = "/home/deepakachu/Desktop/eyantra_stage_2/experimetation/live_data_1.csv"
 
 lat_lon = {}
+
+# last_5_unique_points : List to store the last 5 unique points detected
+last_5_unique_points = []
 
 ##############################################################
 
@@ -74,7 +77,7 @@ def write_csv(loc, csv_name):
     * Example Call: tracker(100, lat_lon)
 '''
 def tracker(ar_id, lat_lon):
-    # Conver ar_id to a string
+    # Convert ar_id to a string
     ar_id = str(ar_id)
     #Check if the given ArUco marker ID (ar_id) is present in the lat_lon dictionary. If it is, fetch the corresponding coordinate from the dictionary using the ArUco marker ID as the index. Subsequently, write this coordinate to a CSV file utilizing the write_csv function.
     if ar_id in lat_lon:
@@ -91,8 +94,8 @@ def tracker(ar_id, lat_lon):
     * Example Call: tracking(frame1, ret)
     '''
 def tracking(frame, ret):
-    # last_5_unique_points : List to store the last 5 unique points detected
-    last_5_unique_points = []
+
+    global last_5_unique_points
     #Read ArUco marker coordinates from the csv file
     read_csv(all_corners)
 

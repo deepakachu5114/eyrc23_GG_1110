@@ -29,19 +29,21 @@ import cv2.aruco as aruco
 import time
 import threading
 import sample_track
-ESP_IP = '192.168.125.165'
+import experimetation.tracking as tracking
+ESP_IP = '192.168.223.165'
 ESP_PORT = 8266
 
 #
 # TOP_LEFT = [[52, 54], 100]
 # TOP_RIGHT = [[10, 43], 100]
-# BOTTOM_RIGHT = [[14,16], 100]
-EVENT_E = [[48, 47], 57, 65] # one away one close scheme
+BOTTOM_RIGHT = [[14], 27]
+EVENT_E = [[48, 47], 50, 65] # one away one close scheme
 EVENT_D = [[34, 33], 53, 70] # one away one close scheme
-EVENT_C = [[30,31], 50]
-EVENT_B = [[28, 29], 58]
-EVENT_A = [[21, 20],50, 65] # one away one close scheme
+EVENT_C = [[30,31], 46]
+EVENT_B = [[28, 29], 63, 50]
+EVENT_A = [[21, 20], 53, 79] # one away one close scheme
 BOT = 100
+
 
 def calculate_distance(corners, ids, marker_id1, marker_id2):
     # Check if both markers are present
@@ -68,7 +70,7 @@ def calculate_distance(corners, ids, marker_id1, marker_id2):
 # Function to reset previous_ack_received to True after a delay
 def reset_acknowledgment():
     global previous_ack_received
-    time.sleep(5)  # Set the delay in seconds
+    time.sleep(5)  # Set the delay in secondsq
     previous_ack_received = True
     # print("Previous acknowledgment reset to True")
 
@@ -82,7 +84,7 @@ reset_thread.start()
 def bot_status(corners, ids):
     # tl_dist = [calculate_distance(corners, ids, TOP_LEFT[0][0], BOT), calculate_distance(corners, ids, TOP_LEFT[0][1], BOT)]
     # tr_dist = [calculate_distance(corners, ids, TOP_RIGHT[0][0], BOT), calculate_distance(corners, ids, TOP_RIGHT[0][1], BOT)]
-    # br_dist = [calculate_distance(corners, ids, BOTTOM_RIGHT[0][0], BOT), calculate_distance(corners, ids, BOTTOM_RIGHT[0][1], BOT)]
+    br_dist = [calculate_distance(corners, ids, BOTTOM_RIGHT[0][0], BOT)]
     e_dist = [calculate_distance(corners, ids, EVENT_E[0][0], BOT), calculate_distance(corners, ids, EVENT_E[0][1], BOT)]
     d_dist = [calculate_distance(corners, ids, EVENT_D[0][0], BOT), calculate_distance(corners, ids, EVENT_D[0][1], BOT)]
     c_dist = [calculate_distance(corners, ids, EVENT_C[0][0], BOT), calculate_distance(corners, ids, EVENT_C[0][1], BOT)]
@@ -131,6 +133,10 @@ def bot_status(corners, ids):
     if None not in a_dist and (a_dist[0] < EVENT_A[1] and a_dist[1] > EVENT_A[2]):
         print(f"Event A: {a_dist}")
         return 5
+
+    if None not in br_dist and (br_dist[0] < BOTTOM_RIGHT[1]):
+        print(f"Bottom Right: {br_dist}")
+        return 1
 
     return 4
 
@@ -195,7 +201,7 @@ while cap.isOpened():
     # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     # clahe = cv2.createCLAHE(clipLimit=10, tileGridSize=(2, 2))
     # clahe_image = clahe.apply(gray)
-    sample_track.tracking(frame, ret)
+    tracking.tracking(frame, ret)
 
 
     if not ret:
@@ -222,10 +228,10 @@ while cap.isOpened():
 
     # Check if it's time to send the data
     # print(message)
-    if message is not None and message != 4 and sendMessage == True:
+    if (message is not None and message != 4 and sendMessage == True) or (message==1):
         print(message)
 
-        if message == bot_stop_nos[bot_event_index]:
+        if message == bot_stop_nos[bot_event_index] or message == 1:
 
             print(previous_ack_received)
             # Send the message only if the previous acknowledgment was received
