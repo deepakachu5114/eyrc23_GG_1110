@@ -290,10 +290,8 @@ def dijkstra(graph, start, end, set_90=set_90):
    - graph (Graph): The graph for which the shortest path needs to be found.
    - priorities (list): A list of tuples representing edge priorities.
  Output: List - The shortest path considering priorities as well as turning costs.
- Logic: Finds the least time-consuming path in the graph.
- Example call: path = find_shortest_path(graph, priorities)'''
-
-'''Algorithm:
+ Logic: Finds the least time-consuming path in the graph in the following way:
+    Algorithm:
     1. Initialize the starting and ending points for the path.
     2. Create an initial path starting from the start point.
     3. Iterate through the list of node pairs depicting edges (priorities):
@@ -302,7 +300,9 @@ def dijkstra(graph, start, end, set_90=set_90):
         c. Optimize the path by potentially deleting edges in case a 180 degree turn is encountered, because that would place
             a really high cost on the travel time.
     4. If it's the last priority, find the shortest path back to the ending point.
-    5. Return the total optimized path through the graph.'''
+    5. Return the total optimized path through the graph.
+ Example call: path = find_shortest_path(graph, priorities)'''
+
 def find_shortest_path(graph, priorities):
     start = "Start_End"
     end = "Start_End"
