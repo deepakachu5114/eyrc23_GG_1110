@@ -8,7 +8,7 @@
            Edge
            Graph:
            Functions: add_node, add_edge, delete_edge, get_nodes, get_edges
-* Other Functions: find_3_node_lists, dijkstra, find_shortest_path
+* Other Functions: find_3_node_lists, dijkstra, find_shortest_path, encoding
 * Global Variables: cost_90, cost_180, se_90, reversed, set_90_right, set_90_left
 '''
 ####################### IMPORT MODULES #######################
@@ -16,13 +16,13 @@ from itertools import permutations
 import json
 import heapq
 
-cost_90 = 10 #cost for a 90 degree turn
+cost_90 = 10 #cost for a 90 degree turn because it's more time-consuming than if it goes straight
 
-#set_90 contains all 90 degree junctions
+#set_90 contains all 90 degree junctions on the arena
 set_90 = [('Start_End', 'A', 'H'), ('A', 'B', "I"), ('C', 'B', 'I'), ('B', 'C', 'J'), ('D', 'C', 'J'), ('C', 'D', 'K'), ('K', 'E', 'F'), ('D', 'E', 'K'),
           ('E', 'F', 'J'), ('G', 'F', 'J'), ('F', 'G', 'I'), ('A', 'H', 'I'), ('B', 'I', 'J'), ('G', 'I', 'J'), ('B', 'I', 'H'), ('G', 'I', 'H'), ('H', 'A', 'B'),('G', 'H', 'I'),
           ('C', 'J', 'I'), ('F', 'J', 'I'), ('C', 'J', 'K'), ('F', 'J', 'K'), ('D', 'K', 'J'), ('E', 'K', 'J'), ('K', 'D', 'E')]
-reversed = [(tup[2], tup[1], tup[0]) for tup in set_90]
+reversed = [(tup[2], tup[1], tup[0]) for tup in set_90] #To include both right and left turns, all tuples in the set were reversed and added
 set_90.append(reversed)
 
 #set_90_right contains right turns and set_90_left contains left turns
@@ -192,24 +192,24 @@ node10 = Node("J")
 node11= Node("K")
 
 '''Adding edges in the graph'''
-graph.add_edge(node0, node1, 2)
-graph.add_edge(node1, node2, 5)
-graph.add_edge(node2, node3, 5)
-graph.add_edge(node3, node4, 4)
-graph.add_edge(node4, node5, 20, True)
-graph.add_edge(node5, node6, 4)
-graph.add_edge(node6, node7, 5)
-graph.add_edge(node7, node8, 10)
-graph.add_edge(node8, node9, 5)
-graph.add_edge(node9, node10, 5)
-graph.add_edge(node10, node11, 4)
-graph.add_edge(node1, node8, 5, True)
-graph.add_edge(node2, node9, 5)
-graph.add_edge(node7, node9, 5, True)
-graph.add_edge(node3, node10, 5, True)
-graph.add_edge(node4, node11, 5)
-graph.add_edge(node6, node10, 5, True)
-graph.add_edge(node5, node11, 5)
+graph.add_edge(node0, node1, 2) #Between start/end and the very first node that is visited
+graph.add_edge(node1, node2, 5) #The edge upwards from node 1
+graph.add_edge(node2, node3, 5) #The edge upwards from node 2
+graph.add_edge(node3, node4, 4) #The edge upwards from node 3
+graph.add_edge(node4, node5, 20, True) #A costly edge between nodes 4 and 5, because there are two rounded turns. This edge also has an associated event.
+graph.add_edge(node5, node6, 4) #The edge downwards from node 5
+graph.add_edge(node6, node7, 5) #The edge downwards from node 6
+graph.add_edge(node7, node8, 11) #The bottom right edge taking a rounded turn from node 7, thus the added cost
+graph.add_edge(node8, node9, 5) #The lowermost middle vertical edge
+graph.add_edge(node9, node10, 5) #The middle section of the 3 vertical edges mid-arena
+graph.add_edge(node10, node11, 4) #The uppermost middle vertical adge
+graph.add_edge(node1, node8, 6, True) #Bottom left horizontal edge with an associated event
+graph.add_edge(node2, node9, 6) #Second lowest horizontal edge on the left
+graph.add_edge(node7, node9, 6, True) #Lowest straight horizontal edge on the right with an associated event
+graph.add_edge(node3, node10, 6, True) #Third lowest horizontal edge on the left with an associated event
+graph.add_edge(node4, node11, 6) #Topmost small horizontal edge on the left with an associated event
+graph.add_edge(node6, node10, 6, True) #Second lowest horizontal edge on the right with event
+graph.add_edge(node5, node11, 6) #Topmost small horizontal edge on the right
 
 '''
  Function Name: find_3_node_lists
@@ -240,38 +240,41 @@ def find_3_node_lists(graph):
    - end (str): The target node to find the shortest path to.
    - set_90 (set): The set of three-node junctions for identifying 90 degree turns.
  Output: List - The path taking up the least amount of time, from start to end.
- Logic: Implements Dijkstra's algorithm to find the shortest path in a graph, in a way that 90 degree turns have
-        an extra cost added to them, because it takes more time to make a turn than to go straight..
+ Logic: Implements a modified Dijkstra's algorithm to find the shortest path in a graph, in a way that 90 degree turns have
+        an extra cost added to them, because it takes more time to make a turn than to go straight.
  Example call: path = dijkstra(graph, start, end, set_90)'''
 def dijkstra(graph, start, end, set_90=set_90):
-    # Initialize distances and predecessor
+    # Initialize distances for all nodes to be infinite and sets predecessor to None for all
     distances = {node: float('infinity') for node in graph.get_nodes()}
     predecessors = {node: None for node in graph.get_nodes()}
     distances[start] = 0
 
-    # Priority queue for Dijkstra's algorithm
+    # Priority queue for Dijkstra's algorithm, initially containing only the starting node
     priority_queue = [(0, start)]
 
     while priority_queue:
         current_distance, current_node = heapq.heappop(priority_queue)
 
-        # Check if the current path to the node is shorter than the recorded distance
+        # Greater distances as compared to the ones previously assigned are rejected
         if current_distance > distances[current_node]:
             continue
 
+        # Calculate distance of the current node from its neighbors and find out which is the shortest
         for neighbor in graph.nodes[current_node].neighbors:
             weight = graph.edges[(current_node, neighbor.name)].weight
             new_distance = distances[current_node] + weight
 
-            # Update distances and predecessors if a shorter path is found
+            # Update distances and predecessors if a shorter path is found, and push the same in the priority queue
             if new_distance < distances[neighbor.name]:
                 distances[neighbor.name] = new_distance
                 predecessors[neighbor.name] = current_node
                 heapq.heappush(priority_queue, (new_distance, neighbor.name))
 
-                # Check if the current three-node path is in set_90 and add the additional cost
+                # Check if the current three-node junction is in set_90 and add the additional cost
                 if predecessors[current_node] is not None:
                     current_path = [current_node, predecessors[current_node], neighbor.name]
+                    # The junction consists of the predecessor, the current node, and the neighbor of the current node
+                    # in that order.
                     current_path_tuple = tuple(sorted(current_path))
                     if current_path_tuple in set_90:
                         distances[neighbor.name] += cost_90
@@ -294,43 +297,55 @@ def dijkstra(graph, start, end, set_90=set_90):
     Algorithm:
     1. Initialize the starting and ending points for the path.
     2. Create an initial path starting from the start point.
-    3. Iterate through the list of node pairs depicting edges (priorities):
+    3. Iterate through the list of node pairs depicting edges that have events (priorities):
         a. Find the shortest paths from the starting point to each node in the current pair.
         b. Choose the shorter path between the forward and backward paths.
-        c. Optimize the path by potentially deleting edges in case a 180 degree turn is encountered, because that would place
-            a really high cost on the travel time.
-    4. If it's the last priority, find the shortest path back to the ending point.
+        c. Optimize the path by potentially deleting edges in case a 180 degree turn is encountered, because that
+        would place a really high cost on the travel time.
+    4. If it's the last priority edge, find the shortest path back to the ending point.
     5. Return the total optimized path through the graph.
  Example call: path = find_shortest_path(graph, priorities)'''
 
 def find_shortest_path(graph, priorities):
     start = "Start_End"
-    end = "Start_End"
 
+    # Initialisation of forward path
     total_path_forward = [start]
 
     for i, (node1, node2) in enumerate(priorities):
         # Find the shortest path to the edge with the current priority
         shortest_path_forward = dijkstra(graph, start, node1) + [node2]
-
         shortest_path_backward = dijkstra(graph, start, node2) + [node1]
+        # Amongst shortest path forward and shortest path backward, the shorter of the two is chosen as indicated below,
+        # to consider the nearer end-point of the priority edge.
 
         # Choose the shorter path between forward and backward
         if len(shortest_path_backward) < len(shortest_path_forward):
-            if len(total_path_forward) >= 2 and total_path_forward[-2] == shortest_path_backward[1]:
-                #If there is a 180 degree turn, that particular edge is getting deleted to reduce costs
+            # The following condition checks is there are atleast 2 nodes in the path, this is important
+            # because we will be checking if the path has a 180 degree turn in the next if statement and
+            # that assumes a minimum of 2 nodes in the already existing path.
+            if len(total_path_forward) >= 2:
+                # Here, we check if there is a 180 degree turn by checking if the last second node is the
+                # same as the node we are about to add to the path. (check for [A-->B-->A])
+                # If there is a 180 degree turn, that particular edge will be deleted since it is an
+                # expensive maneuver and the dijikstra algorithm will be run again without that
+                # edge to find an alternative path.
                 if total_path_forward[-2] == shortest_path_forward[1]:
+                    # graph_temp is the newly constructed graph, without the deleted edge.
                     graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
+                    # We re-run the dijikstra algorithm to find the shortest paths in thr new graph
                     shortest_path_forward = dijkstra(graph_temp, start, node1) + [node2]
                     shortest_path_backward = dijkstra(graph_temp, start, node2) + [node1]
-                    #The node which is nearer to the current location of the bot is considered.
+                    # The node which is nearer to the current location of the bot is considered.
                     if len(shortest_path_backward) < len(shortest_path_forward):
                         total_path_forward += shortest_path_backward[1:]
+                        # the start node is set to the ending node of this current priority edge
                         start = total_path_forward[-1]
                     else:
                         total_path_forward += shortest_path_forward[1:]
                         start = total_path_forward[-1]
                 else:
+                    # if there was no 180 degree turn, we simply add the found path to the existing path.
                     total_path_forward += shortest_path_forward[1:]
                     start = total_path_forward[-1]
             else:
@@ -338,7 +353,7 @@ def find_shortest_path(graph, priorities):
                 start = total_path_forward[-1]
         else:
             # Similar checks and handling for forward path not being optimal
-            if len(total_path_forward) >= 2 and total_path_forward[-2] == shortest_path_forward[1]:
+            if len(total_path_forward) >= 2:
                 if total_path_forward[-2] == shortest_path_backward[1]:
                     #edge delete
                     graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
@@ -356,13 +371,17 @@ def find_shortest_path(graph, priorities):
             else:
                 total_path_forward += shortest_path_forward[1:]
                 start = total_path_forward[-1]
-        # If it's the last priority, find the shortest path back to the ending point
+        # When the iterable i reaches the value len(priorities) - 1, it indicates that all the edges containing
+        # events have been traversed. From the ending node of the last visited edge, the shortest path backwards
+        # to the starting point is calculated.
         if i == len(priorities) - 1:
             end = "Start_End"
             last_node = total_path_forward[-1]
             print(last_node)
+            # Shortest path from the last node to start/end
             shortest_path_backward = dijkstra(graph, last_node, end)
             if total_path_forward[-2] == shortest_path_backward[1]:
+                # Removal of the edge in the case of a 180 degree turn
                 graph_temp = graph.delete_edge(total_path_forward[-2], total_path_forward[-1])
                 shortest_path_backward = dijkstra(graph_temp, last_node, end)
             total_path_forward += shortest_path_backward[1:]
@@ -374,19 +393,29 @@ priorities = loaded_m
 shortest_path = find_shortest_path(graph, priorities)
 print(shortest_path)
 
-encoding = []
+''' Function Name: encoding
+     Input: shortest_path : returned shortest path by the find_shortest_path function
+     Output: encoded path as a list of directions
+     Logic: All consecutive 3 nodes, which form junctions in the graph, are considered iteratively. Consulting set_90_right 
+            and set_90_left lists, we get the junctions in which right turns and left turns are involved. Junctions
+            which are not part of either list do not have any turns. Right turns are encoded as '2', left turns as '1'
+            and straight junctions as '0'.
+     Example Call: path = encoding(shortest_path)'''
+def encoding(shortest_path = shortest_path):
+    encoding = []
+    for i in range(len(shortest_path) - 2):
+        sub_sequence = tuple(shortest_path[i:i+3]) # Considering 3 consecutive elements in the sequence for a junction
+        if sub_sequence in set_90_right:
+            encoding.append(2)
+        elif sub_sequence in set_90_left:
+            encoding.append(1)
+        else:
+            encoding.append(0)
+        return encoding
 
-#Encode the path planned based on whether a right turn or left turn should be taken, or if the robot should go straight.
-for i in range(len(shortest_path) - 2):
-    sub_sequence = tuple(shortest_path[i:i+3])
-    if sub_sequence in set_90_right:
-        encoding.append(2)
-    elif sub_sequence in set_90_left:
-        encoding.append(1)
-    else:
-        encoding.append(0)
+encoded_path = encoding(shortest_path)
+print(encoded_path)
 
-print(encoding)
-
+# The encoded_path is saved as a json file and is later retrieved in the communication.py file.
 with open('encoded_path.json', 'w') as json_file:
     json.dump(encoding, json_file)
