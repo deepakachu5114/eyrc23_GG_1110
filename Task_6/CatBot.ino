@@ -1,4 +1,22 @@
 /*
+
+*****************************************************************************************
+*
+*        		===============================================
+*           		Geo Guide (GG) Theme (eYRC 2023-24)
+*        		===============================================
+*
+*  This script is to implement Task 6 of Geo Guide (GG) Theme (eYRC 2023-24).
+*
+*  This software is made available on an "AS IS WHERE IS BASIS".
+*  Licensee/end user indemnifies and will keep e-Yantra indemnified from
+*  any and all claim(s) that emanate from the use of the Software or
+*  breach of the terms of this agreement.
+*
+*****************************************************************************************
+
+*/
+/*
 * Team Id: GG_1110
 * Author List: Aishini Bhattacharjee, Adithya Ubaradka, Deepak C Nayak, Upasana Nayak
 * Filename: CatBot.ino
@@ -15,13 +33,11 @@
 
 */
 
-
-
 #include <WiFi.h>
 #include <ArduinoJson.h>
 
 const char* ssid = "Chaitanyas phone";
-const char* password = "suckmydick";
+const char* password = "rainbow12345";
 const int port = 8266;  // Choose any available port
 
 WiFiServer server(port);
@@ -59,7 +75,7 @@ const int freq = 30000;
 const int pwmChannel = 0;
 const int resolution = 8;
 int dutyCycle = 200;
-
+int TURN_SPEED = 240;
 
 
 // Variable Name: intersectionActions
@@ -124,7 +140,8 @@ void handleArrayData(WiFiClient& client) {
  * Input: None
  * Output: None
  * Logic: Initializes and sets up the necessary configurations for the Line Following Robot using Arduino ESP32.
- *        Connects to WiFi, starts the server, handles array data, and initializes pins for motor control, IR sensors, buzzer, and LED.
+ *        Connects to WiFi, starts the server, handles array data (recieves the path that the bot has to follow in form an array),
+ *        and initializes pins for motor control, IR sensors, buzzer, and LED.
  *        Configures LED PWM functionalities and attaches channels to GPIO pins.
  *        Prints initialization messages to Serial Monitor.
  *        Finally, calls the buzzerlight function to indicate successful initialization.
@@ -215,33 +232,43 @@ void stopMotors() {
  * Function Name: turnLeft
  * Input: None
  * Output: None
- * Logic: Turns the robot to the left by adjusting the duty cycle for turning.
-
+ * Logic: Turns the robot to the left based on the duty cycle for turning. Here the duty cycle is set to global variable TURN_SPEED.
  *        Prints "LEFT" to the Serial Monitor for debugging or informational purposes.
  * Example Call: turnLeft();
  */
 void turnLeft() {
   Serial.println("LEFT");
-  ledcWrite(pwmChannel, 240);  // Adjust duty cycle for turning
+  ledcWrite(pwmChannel, TURN_SPEED);
   digitalWrite(motor1Pin1, LOW);
   digitalWrite(motor1Pin2, HIGH);
   digitalWrite(motor2Pin1, LOW);   // Reverse direction for this motor
   digitalWrite(motor2Pin2, HIGH);  // Reverse direction for this motor
 }
 
-
-
-// Function to turn the robot to the left
-void turnRight() {
+/*
+ * Function Name: turnRight
+ * Input: None
+ * Output: None
+ * Logic: Turns the robot to the left based on the duty cycle for turning. Here the duty cycle is set to global variable TURN_SPEED.
+ *        Prints "RIHT" to the Serial Monitor for debugging or informational purposes.
+ * Example Call: turnRight();
+ */void turnRight() {
   Serial.println("RIGHT");
-  ledcWrite(pwmChannel, 240);  // Adjust duty cycle for turning
+  ledcWrite(pwmChannel, TURN_SPEED);
   digitalWrite(motor1Pin1, HIGH);
   digitalWrite(motor1Pin2, LOW);
   digitalWrite(motor2Pin1, HIGH);  // Reverse direction for this motor
   digitalWrite(motor2Pin2, LOW);   // Reverse direction for this motor
 }
 
-// Function to move the robot straight
+/*
+ * Function Name: moveStraight
+ * Input: None
+ * Output: None
+ * Logic: Moves the robot straight by setting the maximum speed using PWM.
+ *        Prints "STRAIGHT" to the Serial Monitor for debugging or informational purposes.
+ * Example Call: moveStraight();
+ */
 void moveStraight() {
   Serial.println("STRAIGHT");
   ledcWrite(pwmChannel, 255);  // Maximum speed for moving straight
@@ -251,6 +278,13 @@ void moveStraight() {
   digitalWrite(motor2Pin2, HIGH);  // Reverse direction for this motor
 }
 
+/*
+ * Function Name: buzzerlight
+ * Input: int duration - Duration of the buzzer and LED activity
+ * Output: None
+ * Logic: Activates the buzzer and LED simultaneously for a specified duration.
+ * Example Call: buzzerlight(1000);
+ */
 void buzzerlight(int duration) {
   analogWrite(buzzerPin, 255);
 
@@ -262,9 +296,15 @@ void buzzerlight(int duration) {
   digitalWrite(ledPin, LOW);
 }
 
+/*
+ * Function Name: buzzerWithoutLight
+ * Input: int duration - Duration of the buzzer activity
+ * Output: None
+ * Logic: Activates the buzzer without accompanying LED activity for a specified duration.
+ * Example Call: buzzerWithoutLight(1000);
+ */
 void buzzerWithoutLight(int duration) {
   analogWrite(buzzerPin, 255);
-  //delay(duration);
 
   delay(duration);
   tone(buzzerPin, 0);
@@ -274,13 +314,17 @@ void buzzerWithoutLight(int duration) {
 
 
 
-
-// Define an array to hold actions for each intersection
-// // Modify these based on your desired actions`
-
+/*
+ * Function Name: default_action
+ * Input: None
+ * Output: None
+ * Logic: Implements the default action of the robot for follwing both type1 and type2 roads using five IR sensors.
+ *        Determines the robot's behavior based on the sensor pattern and performs actions at intersections
+ *        as defined by the global variable 'intersectionActions'. If the robot reaches the last intersection,
+ *        it executes a predefined end sequence.
+ * Example Call: default_action();
+ */
 void default_action() {
-
-
 
   int sensorValue1 = digitalRead(irSensorPin1);
   int sensorValue2 = digitalRead(irSensorPin2);
@@ -288,32 +332,41 @@ void default_action() {
   int sensorValue4 = digitalRead(irSensorPin4);
   int sensorValue5 = digitalRead(irSensorPin5);
 
+
   // Combine sensor values into an integer for comparison
+  // The sensor values are combined into a single integer to represent the current sensor pattern.
+  // This is achieved by shifting each sensor value to the left by a certain number of bits and then performing bitwise OR operation.
+  // For example, if sensorValue1 = 0, sensorValue2 = 1, sensorValue3 = 0, sensorValue4 = 1, sensorValue5 = 0,
+  // the combined sensor pattern would be 01010 in binary or 10 in decimal.
   int sensorPattern = (sensorValue1 << 4) | (sensorValue2 << 3) | (sensorValue3 << 2) | (sensorValue4 << 1) | sensorValue5;
 
+  // Check if the robot has reached the last intersection
   if (intersectionCount == TOTAL_INTERSECTIONS) {
-    Serial.print("intersection last");
+    Serial.print("Last intersection");
     Serial.println(intersectionCount);
+
+    // Get the action at the last intersection
     int currentAction = intersectionActions[TOTAL_INTERSECTIONS - 1];
     Serial.println(currentAction);
 
-    // if (currentAction == 0) {
-    //   // If not in a straight configuration, move an additional 300 units
-    //   moveStraight();
-    //   delay(200); // Move straight for an additional 400 milliseconds (adjust as needed)
-    // }
-    // else {
-    //   moveStraight();
-    //   delay(450);
-    // }
-
+    // Perform a right turn if the last action is not a straight movement (only 2 ways to reach the start/end from the last intersection)
     if (currentAction != 0) {
       turnRight();
       delay(300);
-
     }
-    int bleh = 0;
-    while (bleh < 500) {
+
+  // Variable Name: numIterations
+  // Description: Dynamically allocated array to store actions for each intersection.
+  // Expected Values: Pointer to an array of integers, dynamically allocated during runtime once data regarding the size has been received.
+    int numIterations = 0;
+
+
+    // At the last intersection, the bot has to follow the small curved section upto the stard/end box.
+    // We run the same rules (turn based on sensor pattern) for a small amount of time. To achieve this we run the
+    // simplified version of default_action() for a fixed number of iterations (the value was decided on trail and error)
+    // until the bot has reached the start/end box. Then we stop and activate the buzzer for 5 seconds, then go into an
+    // infinite while loop to keep the bot at place until turned off.
+    while (numIterations < 500) {
       Serial.println(bleh);
 
       int sensorValue1 = digitalRead(irSensorPin1);
@@ -325,6 +378,7 @@ void default_action() {
       // Combine sensor values into an integer for comparison
       int sensorPattern = (sensorValue1 << 4) | (sensorValue2 << 3) | (sensorValue3 << 2) | (sensorValue4 << 1) | sensorValue5;
 
+      // The
       switch (sensorPattern) {
         case B00000:
         case B10001:
@@ -357,7 +411,7 @@ void default_action() {
           delay(1);
           break;
 
-        case B10000:  // CASES TO REDUCE WAGGING AT TYPE 1
+        case B10000:
         case B10100:
           Serial.println("Right type 1");
           turnRight();
@@ -366,7 +420,7 @@ void default_action() {
           delay(0.5);
           break;
 
-        case B00001:  // CASES TO REDUCE WAGGING AT TYPE 1
+        case B00001:
         case B00101:
           Serial.println("Left type 1");
           turnLeft();
@@ -375,17 +429,12 @@ void default_action() {
           delay(0.5);
           break;
       }
-
-      bleh++;
-
+      numIterations++;
     }
     stopMotors();
     buzzerlight(5000);
-
-    // stopMotors();
-    // delay(100000);
     while (true) {
-      //   // Serial.println("entering while loop");
+      // Serial.println("entering while loop");
       analogWrite(buzzerPin, 0);
     }
   }
@@ -398,10 +447,32 @@ void default_action() {
   Serial.print(sensorValue4);
   Serial.println(sensorValue5);
 
-  int currentAction = 0;  // Declare outside the switch statement
+  // Variable that stores the action to be performed at the current node, this is being initialised here.
+  // The maneuver to be performed at the current node will later be assigned to this varible by fetching
+  // the value from the intersectionActions array.
+  int currentAction = 0;
 
   // Determine action based on sensor pattern using switch case
   switch (sensorPattern) {
+    /*
+    The patterns used here represent the on/off states of each of the 5 IR sensors.
+    1st one to keep the bot on track for type 1 and turn left on type 1 (if line sensed, turn left)
+    2nd one to keep the bot on track for type 2 and turn left on type 2 (if line sensed, turn left)
+    3rd one to keep the bot on track for type 2 and sense the middle line (if line sensed, do nothing, keep moving straight)
+    4th one to keep the bot on track for type 2 and turn right on type 2 (if line sensed, turn right)
+    5th one to keep the bot on track for type 1 and turn right on type 1 (if line sensed, turn right)
+
+    For example:
+    B00000 means all the 5 IR sensors are not detecting any black lines, B00001 means the 5th
+    sensor is detecting a line and the rest 4 are not.
+
+
+    We considered all the possible 32 patterns and then eliminated the ones that have almost 0 chance
+    of happening (B10010) and then a few more based on trail and error.
+
+    The action to follow at a pattern was based on straigtforward logic as mentioned above. We have just considered
+    edge cases for and cases where a node is detected based on the remaining patterns.
+    */
     case B00000:
     case B10001:
     case B00100:
@@ -410,39 +481,41 @@ void default_action() {
       moveStraight();
       break;
 
-
+    // For type 2 roads
     case B01000:
-    case B01001:
     case B01100:
     case B01101:
     case B11001:
     case B11101:
       Serial.println("Turning Left");
       turnLeft();
-      // delay(0.5);
+      // A small delay so the turn is more effective
+      delay(0.5);
       break;
 
     case B00010:
     case B00110:
-    case B10010:
     case B10011:
     case B10110:
     case B10111:
       Serial.println("Turning Right");
       turnRight();
-      // delay(0.5);
+      delay(0.5);
       break;
 
-    case B10000:  // CASES TO REDUCE WAGGING AT TYPE 1
+    // For type 1 roads
+    case B10000:
     case B10100:
       Serial.println("Right type 1");
       turnRight();
+      // The bot would sometimes get stuck on a type 1 road in an oscillating loop by turning left and right indefinitely.
+      // To avoid it, we turn and then also move straight for a small duration so that the bot can slowly unstuck itself.
       delay(4);
       moveStraight();
       delay(1.5);
       break;
 
-    case B00001:  // CASES TO REDUCE WAGGING AT TYPE 1
+    case B00001:
     case B00101:
       Serial.println("Left type 1");
       turnLeft();
@@ -451,7 +524,7 @@ void default_action() {
       delay(1.5);
       break;
 
-    // case B01010:
+    // The below cases indicate a node, hence the bot will now retrive the action it has to perform at that particular node.
     case B01110:
     case B01111:
     case B11011:
@@ -459,17 +532,17 @@ void default_action() {
     case B11111:
       Serial.println("Stopping");
 
+      // The retrieved action from the array is assigned to the currentAction variable that was initialised earlier.
       currentAction = intersectionActions[intersectionCount];
-      // break;
+      // If the action is to go straight (0), the bot moves straight for an additional 300 miliseconds (subject to finetuning) so that it does
+      //not count the same node twice.
 
-
-
-      // Check if the robot is not already in a straight configuration after moving 100 units
       if (currentAction == 0) {
-        // If not in a straight configuration, move an additional 300 units
         moveStraight();
-        delay(300);  // Move straight for an additional 400 milliseconds (adjust as needed)
+        delay(300);
       } else {
+        // If the action is left/right, the bot will traverse straight for 450 miliseconds (subject to finetuning) so that it has enough room
+        // to take a turn
         moveStraight();
         delay(450);
       }
@@ -489,10 +562,12 @@ void default_action() {
           break;
 
         case 1:
+        // The bot performs the turnLeft() function in the loop function for a specified amount of time (620 ms - subject to finetuning)
+        // We chose this approach as it proved to be more reliable and faster than a dynamic turning scheme only based on sensor readings
           Serial.println("Turning Left");
           turnLeft();
           delay(620);   //TURNS LEFT 90 DEGREES
-          // stopM5otors();  // Stop the robot once it reaches the straight pattern
+          // After the turn has been completed, the intersection count is incremented sigifying the visiting of a node.
           intersectionCount++;
           break;
 
@@ -500,23 +575,36 @@ void default_action() {
           Serial.println("Turning Right");
           turnRight();
           delay(620);   // TURNS RIGHT 90 DEGREES
-          // stopMotors();  // Stop the robot once it reaches the straight pattern
           intersectionCount++;
           break;
       }
-      //intersectionCount++; // Increment the intersection count
-      //break;
     default:
       Serial.println("No matching pattern found");
       break;
   }
-  // delay(5); // DELAY REDUCTION HERE INTRODUCES WAGGING BUT INCREASES ACCURACY
+  // delay(5); // DELAY REDUCTION HERE INTRODUCES WAGGING BUT INCREASES ACCURACY (Wagging refers to the indefinite left-right motion on type 1 roads)
+  // We have removed the delay so that we get sensor readings at the shortest time intervals possible so that the bot can take accurate decisions
 }
 
 
+
+/*
+ * Function Name: loop
+ * Input: None
+ * Output: None
+ * Logic: Repeatedly the runs the codeblock inside the function. The main function for arduino interfaces.
+ *        Takes care of line following and stopping at events based on the messages recieved by the client (python script).
+ *        The bot keeps performing the default action (line following) and keeps checking for the messages recieved from
+ *        the client. In case a message has been recieved indicating approaching an event, the bot stops and beeps for a second.
+ * Example Call: -
+ */
 void loop() {
+
+  // We keep performing the default action (take decisions based on sensor readings) irrespective of everything.
+  // This is the first line of code that runs on every iteration.
   default_action();
 
+  // For stopping at the events, we are using the laptop (python script) as a client who sends messages over the common Wi-Fi network.
   // Check if there is a client connection
   if (client.connected()) {
     // Read the data from the client
@@ -529,19 +617,23 @@ void loop() {
       Serial.print("Received Message: ");
       Serial.println(receivedData);
 
-      // Optional: Send an acknowledgment back to the client
-      // client.print("Message Received");
-
+      // If the recieved data is 4, it means that nothing alarming is happening, and everything is fine. So the bot can just
+      // keep follwing the path by performing the defined default actions.
+      // If any other number is recieved (different events have different numbers), the bot stops and beeps for a second.
       if (receivedData != 4) {
         stopMotors();
         buzzerWithoutLight(1000);
+        // We move straight for a while right after stopping so that the bot does not recieve a false signal again instructing it to stop.
+        // More robust mechanisms are implemented on the client side so as to avoid this issue.
         moveStraight();
         delay(500);
+        // We flush the buffer to make sure any messages sent from the client during the whole stop maneuver are
+        // discarded soo as to avoid false positives.
         client.flush();
-        // client.print("ACK");
       }
     }
   } else {
+    // If not connected to any client, attempt to establish a connection.
     Serial.println("No client connection yet...");
     client = server.available();
   }

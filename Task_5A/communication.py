@@ -37,11 +37,11 @@ ESP_PORT = 8266
 # TOP_LEFT = [[52, 54], 100]
 # TOP_RIGHT = [[10, 43], 100]
 BOTTOM_RIGHT = [[14], 27]
-EVENT_E = [[48, 47], 50, 65] # one away one close scheme
+EVENT_E = [[48, 47, 40], 57, 77, 50] # one away one close scheme
 EVENT_D = [[34, 33], 53, 70] # one away one close scheme
-EVENT_C = [[30,31], 46]
-EVENT_B = [[28, 29], 63, 50]
-EVENT_A = [[21, 20], 53, 79] # one away one close scheme
+EVENT_C = [[30,31], 48, 47]
+EVENT_B = [[28, 29], 58, 50]
+EVENT_A = [[21, 20], 47, 65] # one away one close scheme
 BOT = 100
 
 
@@ -85,7 +85,7 @@ def bot_status(corners, ids):
     # tl_dist = [calculate_distance(corners, ids, TOP_LEFT[0][0], BOT), calculate_distance(corners, ids, TOP_LEFT[0][1], BOT)]
     # tr_dist = [calculate_distance(corners, ids, TOP_RIGHT[0][0], BOT), calculate_distance(corners, ids, TOP_RIGHT[0][1], BOT)]
     br_dist = [calculate_distance(corners, ids, BOTTOM_RIGHT[0][0], BOT)]
-    e_dist = [calculate_distance(corners, ids, EVENT_E[0][0], BOT), calculate_distance(corners, ids, EVENT_E[0][1], BOT)]
+    e_dist = [calculate_distance(corners, ids, EVENT_E[0][0], BOT), calculate_distance(corners, ids, EVENT_E[0][1], BOT), calculate_distance(corners, ids, EVENT_E[0][2], BOT)]
     d_dist = [calculate_distance(corners, ids, EVENT_D[0][0], BOT), calculate_distance(corners, ids, EVENT_D[0][1], BOT)]
     c_dist = [calculate_distance(corners, ids, EVENT_C[0][0], BOT), calculate_distance(corners, ids, EVENT_C[0][1], BOT)]
     b_dist = [calculate_distance(corners, ids, EVENT_B[0][0], BOT), calculate_distance(corners, ids, EVENT_B[0][1], BOT)]
@@ -114,7 +114,7 @@ def bot_status(corners, ids):
     #     print(f"Extreme turn maneuver, bottom right: {br_dist}")
     #     return 2
 
-    if None not in e_dist and (e_dist[0] < EVENT_E[1] and e_dist[1] > EVENT_E[2]):
+    if None not in e_dist and (e_dist[0] < EVENT_E[1] and e_dist[1] > EVENT_E[2] and e_dist[2] > EVENT_E[3]):
         print(f"Event E: {e_dist}")
         return 9
 
@@ -122,7 +122,7 @@ def bot_status(corners, ids):
         print(f"Event D: {d_dist}")
         return 8
 
-    if None not in c_dist and (c_dist[0] < EVENT_C[1] and c_dist[1] < EVENT_C[1]):
+    if None not in c_dist and (c_dist[0] < EVENT_C[1] and c_dist[1] < EVENT_C[2]):
         print(f"Event C: {c_dist}")
         return 7
 

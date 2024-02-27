@@ -98,7 +98,7 @@ def tracking(frame, ret):
 
         dist = 99999
         loc = 900
-        threshold = 31.5
+        threshold = 31
 
         corners1 = corners[ids.index(100)]
 

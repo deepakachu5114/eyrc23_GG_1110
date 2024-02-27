@@ -1,31 +1,46 @@
 '''
-* Team Id : GG_1110
-* Author List : Aishini Bhattacharjee, Adithya S Ubaradka, Deepak C Nayak, Upasana Nayak
-* Filename: shortest_path.py
-* Theme: GeoGuide
-* Classes: Node:
-           Functions: add_neighbor
-           Edge
-           Graph:
-           Functions: add_node, add_edge, delete_edge, get_nodes, get_edges
-* Other Functions: find_3_node_lists, dijkstra, find_shortest_path, encoding
-* Global Variables: cost_90, cost_180, se_90, reversed, set_90_right, set_90_left
+*****************************************************************************************
+*
+*        		===============================================
+*           		Geo Guide (GG) Theme (eYRC 2023-24)
+*        		===============================================
+*
+*  This script is to find the shortest path for the bot to follow for Task 6 of Geo Guide (GG) Theme (eYRC 2023-24).
+*
+*  This software is made available on an "AS IS WHERE IS BASIS".
+*  Licensee/end user indemnifies and will keep e-Yantra indemnified from
+*  any and all claim(s) that emanate from the use of the Software or
+*  breach of the terms of this agreement.
+*
+*****************************************************************************************
 '''
+
+# Team ID:	GG_1110
+# Author List:		Aishini Bhattacharjee, Adithya S Ubaradka, Deepak C Nayak, Upasana Nayak
+# Filename: shortest_path.py
+# Theme: GeoGuide
+# Classes: Node:
+#          Functions: add_neighbor
+#          Edge
+#          Graph:
+#          Functions: add_node, add_edge, delete_edge, get_nodes, get_edges
+# Other Functions: find_3_node_lists, dijkstra, find_shortest_path
+# Global Variables: cost_90, cost_180, set_90, reversed, set_90_right, set_90_left
 ####################### IMPORT MODULES #######################
 from itertools import permutations
 import json
 import heapq
 
-cost_90 = 10 #cost for a 90 degree turn because it's more time-consuming than if it goes straight
+cost_90 = 10 # cost for a 90 degree turn because it's more time-consuming than if it goes straight
 
-#set_90 contains all 90 degree junctions on the arena
+# set_90 contains all 90 degree junctions on the arena
 set_90 = [('Start_End', 'A', 'H'), ('A', 'B', "I"), ('C', 'B', 'I'), ('B', 'C', 'J'), ('D', 'C', 'J'), ('C', 'D', 'K'), ('K', 'E', 'F'), ('D', 'E', 'K'),
           ('E', 'F', 'J'), ('G', 'F', 'J'), ('F', 'G', 'I'), ('A', 'H', 'I'), ('B', 'I', 'J'), ('G', 'I', 'J'), ('B', 'I', 'H'), ('G', 'I', 'H'), ('H', 'A', 'B'),('G', 'H', 'I'),
           ('C', 'J', 'I'), ('F', 'J', 'I'), ('C', 'J', 'K'), ('F', 'J', 'K'), ('D', 'K', 'J'), ('E', 'K', 'J'), ('K', 'D', 'E')]
 reversed = [(tup[2], tup[1], tup[0]) for tup in set_90] #To include both right and left turns, all tuples in the set were reversed and added
 set_90.append(reversed)
 
-#set_90_right contains right turns and set_90_left contains left turns
+# set_90_right contains right turns and set_90_left contains left turns
 set_90_right = [('Start_End', 'A', 'H'), ('A', 'B', 'I'), ('I', 'B', 'C'), ('B', 'C', 'J'), ('J', 'C', 'D'), ('C', 'D', 'K'), ('K', 'E', 'F'), ('D', 'E', 'K'),
           ('E', 'F', 'J'), ('H', 'A', 'B'), ('J', 'F', 'G'), ('F', 'G', 'I'), ('I', 'G', 'H'), ('I', 'H', 'A'), ('J', 'I', 'B'),
           ('G', 'I', 'J'), ('B', 'I', 'H'), ('H', 'I', 'G'), ('G', 'H', 'I'),
