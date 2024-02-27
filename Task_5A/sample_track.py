@@ -17,7 +17,7 @@
 
 # Team ID:           GG_1110
 # Author List:       Aishini Bhattacharjee, Adithya S Ubaradka, Deepak C Nayak, Upasana Nayak
-# Filename:          sample_track.py
+# Filename:          tracking_qgis.py
 
 ####################### IMPORT MODULES #######################
 import cv2

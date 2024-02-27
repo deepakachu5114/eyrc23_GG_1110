@@ -34,7 +34,7 @@ import cv2
 import cv2.aruco as aruco
 import time
 import threading
-import sample_track
+import tracking_qgis
 
 ##############################################################################################################################################################
 
@@ -252,9 +252,9 @@ while cap.isOpened():
         frame_no += 1
         continue
 
-    # We call the function "tracking" from the imported python file sample_track.py, this handles the QGIS tracking
+    # We call the function "tracking" from the imported python file tracking_qgis.py, this handles the QGIS tracking
     # at every frame. We achieve this by sending the frame captured here to the tracking function for analysis.
-    sample_track.tracking(frame, ret)
+    tracking_qgis.tracking(frame, ret)
 
     if not ret:
         break
