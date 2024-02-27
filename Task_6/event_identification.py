@@ -5,7 +5,7 @@
 *           		Geo Guide (GG) Theme (eYRC 2023-24)
 *        		===============================================
 *
-*  This script is to detect and classify the events on the arena for Task 5A of Geo Guide (GG) Theme (eYRC 2023-24).
+*  This script is to detect and classify the events on the arena for Task 6 of Geo Guide (GG) Theme (eYRC 2023-24).
 *
 *  This software is made available on an "AS IS WHERE IS BASIS".
 *  Licensee/end user indemnifies and will keep e-Yantra indemnified from
