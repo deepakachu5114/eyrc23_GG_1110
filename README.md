@@ -1,3 +1,3 @@
 # eyrc23_GG_1110
 
-[<img src="https://img.youtu.be/cBx2-WwABhc/maxresdefault.jpg" width="50%">](https://youtu.be/cBx2-WwABhc)
+[![Watch the video](https://img.youtube.com/vi/cBx2-WwABhc/maxresdefault.jpg)](https://youtu.be/cBx2-WwABhc)
