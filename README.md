@@ -1,3 +1,3 @@
 # eyrc23_GG_1110
 
-<video src='[https://youtu.be/qMcRqfoQxVI](Video)' width=180/>
+[<img src="https://img.youtu.be/cBx2-WwABhc/maxresdefault.jpg" width="50%">](https://youtu.be/cBx2-WwABhc)
